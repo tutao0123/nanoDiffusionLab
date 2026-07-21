@@ -52,8 +52,7 @@ reductions over communication-heavy parameter or tensor sharding.
 ## Intended milestones
 
 1. Character-level masked diffusion and AR baseline (implemented).
-2. Tokenized/sharded TinyStories and FineWeb-Edu loaders.
-3. Fair AR/MDLM experiments with likelihood-aware evaluation.
+2. Tokenized/sharded TinyStories loader and a reproducible 106M paired experiment (implemented).
+3. FineWeb-Edu ingestion and likelihood-aware AR/MDLM evaluation.
 4. Block-diffusion attention, objective, and sampler.
 5. Interactive denoising visualization and instruction tuning.
-

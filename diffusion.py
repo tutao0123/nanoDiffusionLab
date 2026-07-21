@@ -39,8 +39,11 @@ def masked_diffusion_loss(
     model: torch.nn.Module,
     clean_tokens: torch.Tensor,
     mask_token_id: int,
+    t: torch.Tensor | None = None,
+    *,
+    generator: torch.Generator | None = None,
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    noisy, loss_mask, t = corrupt_tokens(clean_tokens, mask_token_id)
+    noisy, loss_mask, t = corrupt_tokens(clean_tokens, mask_token_id, t, generator=generator)
     logits = model(noisy, t, loss_mask)
     targets = clean_tokens[loss_mask]
     loss = F.cross_entropy(logits, targets)
@@ -48,6 +51,8 @@ def masked_diffusion_loss(
     metrics = {
         "masked_accuracy": float(accuracy.detach()),
         "mask_ratio": float(loss_mask.float().mean()),
+        "target_tokens": float(loss_mask.sum()),
+        "correct_tokens": float((logits.argmax(dim=-1) == targets).sum()),
     }
     return loss, metrics
 

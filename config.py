@@ -44,8 +44,12 @@ class TrainConfig:
     batch_size: int = 16
     gradient_accumulation_steps: int = 4
     max_iters: int = 5_000
+    max_tokens: int | None = None
+    milestone_tokens: tuple[int, ...] = ()
     eval_interval: int = 250
     eval_iters: int = 50
+    eval_seed: int = 4242
+    eval_mask_ratios: tuple[float, ...] = (0.1, 0.25, 0.5, 0.75, 0.9)
     log_interval: int = 10
     learning_rate: float = 3e-4
     min_lr: float = 3e-5
@@ -59,6 +63,7 @@ class TrainConfig:
     gradient_checkpointing: bool = False
     backend: str = "nccl"
     always_save_checkpoint: bool = False
+    run_name: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
