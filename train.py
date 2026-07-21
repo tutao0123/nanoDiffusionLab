@@ -184,6 +184,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--gradient-accumulation-steps", type=int)
     parser.add_argument("--eval-interval", type=int)
     parser.add_argument("--eval-iters", type=int)
+    parser.add_argument("--seed", type=int)
     parser.add_argument("--resume", nargs="?", const="auto")
     parser.add_argument("--no-compile", action="store_true")
     return parser.parse_args()
@@ -200,6 +201,7 @@ def apply_overrides(config: TrainConfig, args: argparse.Namespace) -> None:
         ("gradient_accumulation_steps", "gradient_accumulation_steps"),
         ("eval_interval", "eval_interval"),
         ("eval_iters", "eval_iters"),
+        ("seed", "seed"),
     ):
         value = getattr(args, argument)
         if value is not None:

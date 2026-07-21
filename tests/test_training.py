@@ -17,6 +17,7 @@ def arguments(**overrides: object) -> argparse.Namespace:
         "gradient_accumulation_steps": None,
         "eval_interval": None,
         "eval_iters": None,
+        "seed": None,
         "no_compile": False,
     }
     values.update(overrides)
@@ -25,13 +26,17 @@ def arguments(**overrides: object) -> argparse.Namespace:
 
 def test_objective_override_sets_all_model_fields() -> None:
     config = TrainConfig(out_dir="out/example-mdlm")
-    apply_overrides(config, arguments(objective="autoregressive", max_tokens=1000))
+    apply_overrides(
+        config,
+        arguments(objective="autoregressive", max_tokens=1000, seed=2027),
+    )
 
     assert config.model.objective == "autoregressive"
     assert config.model.mask_token_id is None
     assert not config.model.time_conditioning
     assert config.out_dir == "out/example-ar"
     assert config.max_tokens == 1000
+    assert config.seed == 2027
 
 
 def test_106m_architecture_parameter_counts() -> None:
