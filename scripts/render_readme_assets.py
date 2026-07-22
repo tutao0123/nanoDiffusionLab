@@ -277,6 +277,123 @@ def render_decoding_gif() -> None:
     )
 
 
+def render_character_diffusion_gif() -> None:
+    """Render a character-cell explanation of training and iterative sampling."""
+    width, height = 1200, 650
+    target = "a tiny fox finds a red star."
+    order = sorted(range(len(target)), key=lambda index: (index * 17) % len(target))
+    frames = []
+    steps = 7
+    for step in range(steps + 1):
+        image = Image.new("RGB", (width, height), "#0b1220")
+        draw = ImageDraw.Draw(image)
+        draw.text(
+            (55, 32),
+            "MASKED DIFFUSION — CHARACTER VIEW",
+            font=token_font(31, True),
+            fill="#f8fafc",
+        )
+        draw.text(
+            (55, 77),
+            "Train by reconstructing random masks; generate by iterative parallel unmasking",
+            font=token_font(17),
+            fill="#94a3b8",
+        )
+
+        cards = (
+            (50, "1  CORRUPT", "clean x₀ → random masks at level t"),
+            (425, "2  PREDICT", "bidirectional Transformer(xₜ, t)"),
+            (800, "3  REVEAL", "keep high-confidence predictions"),
+        )
+        for x, title, body in cards:
+            draw.rounded_rectangle(
+                (x, 125, x + 350, 225),
+                radius=16,
+                fill="#111c30",
+                outline="#334155",
+                width=2,
+            )
+            draw.text((x + 20, 147), title, font=token_font(18, True), fill="#fb923c")
+            draw.text((x + 20, 183), body, font=token_font(14), fill="#cbd5e1")
+        draw.text((405, 164), "→", font=token_font(28, True), fill="#64748b")
+        draw.text((780, 164), "→", font=token_font(28, True), fill="#64748b")
+
+        draw.rounded_rectangle(
+            (50, 260, 1150, 545),
+            radius=20,
+            fill="#0f1a2c",
+            outline="#334155",
+            width=2,
+        )
+        draw.text((75, 285), "SAMPLING", font=token_font(19, True), fill="#60a5fa")
+        draw.text(
+            (230, 286),
+            f"reverse step {step}/{steps}   mask ratio {(steps - step) / steps:0.2f}",
+            font=token_font(16),
+            fill="#94a3b8",
+        )
+        visible_count = round(len(target) * step / steps)
+        visible = set(order[:visible_count])
+        previous_count = round(len(target) * max(step - 1, 0) / steps)
+        newly_visible = set(order[previous_count:visible_count])
+        cell_width = 34
+        cell_gap = 3
+        start_x = 75
+        for index, character in enumerate(target):
+            x = start_x + index * (cell_width + cell_gap)
+            is_visible = index in visible
+            if not is_visible:
+                fill, outline, text_fill, display = "#431407", "#ea580c", "#fb923c", "?"
+            elif index in newly_visible:
+                fill, outline, text_fill = "#052e2b", "#2dd4bf", "#ccfbf1"
+                display = "·" if character == " " else character
+            else:
+                fill, outline, text_fill = "#172554", "#3b82f6", "#dbeafe"
+                display = "·" if character == " " else character
+            draw.rounded_rectangle(
+                (x, 350, x + cell_width, 400),
+                radius=6,
+                fill=fill,
+                outline=outline,
+                width=2,
+            )
+            draw.text(
+                (x + cell_width / 2, 375),
+                display,
+                anchor="mm",
+                font=token_font(18, is_visible),
+                fill=text_fill,
+            )
+        recovered = "".join(
+            character if index in visible else "·" for index, character in enumerate(target)
+        )
+        draw.text((75, 435), recovered, font=token_font(25, True), fill="#f8fafc")
+        action = (
+            "initialize every position as [MASK]"
+            if step == 0
+            else "predict all masks in parallel → reveal the most confident subset"
+        )
+        if step == steps:
+            action = "complete sequence — no masked positions remain"
+        draw.text((75, 485), action, font=token_font(16), fill="#cbd5e1")
+        draw.text(
+            (55, 585),
+            "Conceptual character-level view. The 106M TinyStories experiment "
+            "uses GPT-2 BPE tokens.",
+            font=token_font(15),
+            fill="#94a3b8",
+        )
+        frames.append(image)
+    frames[0].save(
+        ASSET_DIR / "character_diffusion.gif",
+        save_all=True,
+        append_images=frames[1:],
+        duration=[1200] + [750] * (steps - 1) + [1800],
+        loop=0,
+        optimize=True,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--refresh-data", action="store_true")
@@ -288,6 +405,7 @@ def main() -> None:
     render_curves(data)
     render_summary(data)
     render_decoding_gif()
+    render_character_diffusion_gif()
 
 
 if __name__ == "__main__":

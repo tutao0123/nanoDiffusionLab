@@ -22,6 +22,22 @@ possible to hold the backbone, data, context length, and input-token budget fixe
 
 Block diffusion is the next architecture milestone and is not implemented yet.
 
+## How masked diffusion works
+
+![Character-level masked diffusion animation](docs/assets/character_diffusion.gif)
+
+The animation shows the core implementation pattern:
+
+1. **Corrupt during training:** sample a noise level and replace a corresponding fraction of the
+   clean sequence with mask tokens.
+2. **Predict in both directions:** feed the corrupted sequence and noise level to a bidirectional
+   Transformer, and compute cross-entropy only at masked positions.
+3. **Decode in parallel:** begin generation from an all-mask sequence, predict every unresolved
+   position, reveal a high-confidence subset, and repeat until no masks remain.
+
+The animation uses characters to make individual positions easy to see. The completed 106M
+TinyStories experiment applies the same process to GPT-2 BPE tokens rather than raw characters.
+
 ## Completed 106M experiment
 
 Two independent seeds were trained on the pinned TinyStories dataset with GPT-2 BPE. Each
