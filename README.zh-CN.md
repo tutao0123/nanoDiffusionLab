@@ -1,6 +1,6 @@
 # nanoDiffusionLab
 
-[English](README.md) | **简体中文**
+[中英双语 README](README.md) | **简体中文详细说明**
 
 一个从零构建、用于学习、训练和比较自回归语言模型与扩散语言模型的精简 PyTorch
 实验平台。
@@ -88,8 +88,13 @@ bash scripts/run_tinystories_pair.sh
 
 ## 实验报告
 
-- [106M 实现与首轮 AR 运行报告](reports/initial_run_report.html) — 固定在 step 250 的阶段性
-  快照，成对训练仍在进行。
+- [TinyStories 106M seed 1337 完整对比](reports/tinystories_106m.md)
+- [TinyStories 106M seed 2027 复现实验](reports/tinystories_106m_seed2027.md)
+- [106M 实现与早期运行快照](reports/initial_run_report.html)
+
+两组实验均已完成，每种目标、每个 seed 使用约 2B 输入 token。AR 的验证 perplexity 分别为
+3.4446 和 3.4586；MDLM 的 masked accuracy 分别为 59.08% 和 59.02%。主 README 提供训练
+曲线、跨 seed 结果图以及 AR/MDLM 解码过程动画。
 
 ## 4×A40 PCIe/PHB 说明
 

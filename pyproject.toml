@@ -14,6 +14,7 @@ dependencies = ["torch>=2.3"]
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
 data = ["datasets>=3.0", "numpy>=1.26", "tiktoken>=0.8"]
+viz = ["matplotlib>=3.8", "pillow>=10"]
 
 [tool.setuptools]
 py-modules = ["compare_runs", "config", "data", "diffusion", "experiment", "model", "sample", "train"]

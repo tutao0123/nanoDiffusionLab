@@ -26,6 +26,11 @@ def value(summary: dict[str, Any], key: str) -> str:
     return "—" if item is None else f"{item:.4f}"
 
 
+def clean_sample(text: str) -> str:
+    """Keep generated text verbatim except for Markdown-hostile line-end whitespace."""
+    return "\n".join(line.rstrip() for line in text.strip().splitlines())
+
+
 def main() -> None:
     args = parse_args()
     records = [load(path) for path in args.runs]
@@ -63,7 +68,7 @@ def main() -> None:
         lines.append("")
         lines.append("```text")
         sample = (
-            sample_path.read_text(encoding="utf-8").strip()
+            clean_sample(sample_path.read_text(encoding="utf-8"))
             if sample_path.exists()
             else "Not generated"
         )

@@ -3,7 +3,12 @@ from pathlib import Path
 
 import torch
 
+from compare_runs import clean_sample
 from experiment import JsonlLogger, atomic_json, atomic_torch_save
+
+
+def test_clean_sample_removes_only_boundary_whitespace() -> None:
+    assert clean_sample("  first line  \nsecond line \n") == "first line\nsecond line"
 
 
 def test_atomic_artifacts_and_jsonl(tmp_path: Path) -> None:
