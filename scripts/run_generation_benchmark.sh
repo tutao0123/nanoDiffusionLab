@@ -16,6 +16,12 @@ output_dir="${EVAL_OUTPUT_DIR:-out/tinystories-106m-generation-eval}"
 "$python_bin" scripts/benchmark_generation.py --output-dir "$output_dir" performance \
     --batch-sizes 1 8 32 --steps 8 16 32 64 --warmup 10 --repeats 30 --device cuda:0
 
+judge_env="${JUDGE_ENV_FILE:-/root/.config/nanodiffusionlab/judge.env}"
+if [[ -f "$judge_env" ]]; then
+    # shellcheck disable=SC1090
+    source "$judge_env"
+fi
+
 if [[ -z "${DEEPSEEK_API_KEY:-}" ]]; then
     echo "generation and performance are complete; set DEEPSEEK_API_KEY to continue judging" >&2
     exit 2

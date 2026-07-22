@@ -138,6 +138,7 @@ def prepare(args: argparse.Namespace) -> None:
             "prompt_length": args.prompt_length,
             "output_length": args.output_length,
             "prompt_seed": args.seed,
+            "inference_dtype": "bfloat16",
             "mdlm_steps": [8, 16, 32, 64],
             "checkpoints": [
                 {
@@ -197,37 +198,38 @@ def generate(args: argparse.Namespace) -> None:
                     )
                     for prompt in batch
                 ]
-                if objective == "autoregressive":
-                    result = model.generate(
-                        prompt_tokens,
-                        settings["output_length"],
-                        args.temperature,
-                        args.top_k,
-                        use_cache=True,
-                        generator=generators,
-                    )
-                    network_evaluations = settings["output_length"]
-                else:
-                    if model_config.mask_token_id is None:
-                        raise ValueError("MDLM checkpoint has no mask token")
-                    initial = torch.full(
-                        (len(batch), total_length),
-                        model_config.mask_token_id,
-                        dtype=torch.long,
-                        device=device,
-                    )
-                    initial[:, : settings["prompt_length"]] = prompt_tokens
-                    result = sample_masked(
-                        model,
-                        tuple(initial.shape),
-                        model_config.mask_token_id,
-                        steps=steps or 1,
-                        temperature=args.temperature,
-                        top_k=args.top_k,
-                        initial_tokens=initial,
-                        generator=generators,
-                    )
-                    network_evaluations = steps
+                with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                    if objective == "autoregressive":
+                        result = model.generate(
+                            prompt_tokens,
+                            settings["output_length"],
+                            args.temperature,
+                            args.top_k,
+                            use_cache=True,
+                            generator=generators,
+                        )
+                        network_evaluations = settings["output_length"]
+                    else:
+                        if model_config.mask_token_id is None:
+                            raise ValueError("MDLM checkpoint has no mask token")
+                        initial = torch.full(
+                            (len(batch), total_length),
+                            model_config.mask_token_id,
+                            dtype=torch.long,
+                            device=device,
+                        )
+                        initial[:, : settings["prompt_length"]] = prompt_tokens
+                        result = sample_masked(
+                            model,
+                            tuple(initial.shape),
+                            model_config.mask_token_id,
+                            steps=steps or 1,
+                            temperature=args.temperature,
+                            top_k=args.top_k,
+                            initial_tokens=initial,
+                            generator=generators,
+                        )
+                        network_evaluations = steps
                 continuations = result[:, settings["prompt_length"] :].cpu().tolist()
                 for prompt, token_ids in zip(batch, continuations, strict=True):
                     record = {
@@ -301,13 +303,14 @@ def performance(args: argparse.Namespace) -> None:
                         use_cache: bool | None = use_cache,
                         generators=generators,
                     ) -> torch.Tensor:
-                        return model.generate(
-                            prompt_tokens,
-                            settings["output_length"],
-                            top_k=1,
-                            use_cache=bool(use_cache),
-                            generator=generators,
-                        )
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                            return model.generate(
+                                prompt_tokens,
+                                settings["output_length"],
+                                top_k=1,
+                                use_cache=bool(use_cache),
+                                generator=generators,
+                            )
 
                     network_evaluations = settings["output_length"]
                     variant = "cached" if use_cache else "uncached"
@@ -316,7 +319,8 @@ def performance(args: argparse.Namespace) -> None:
                         model: Transformer = model,
                         prompt_tokens: torch.Tensor = prompt_tokens,
                     ) -> torch.Tensor:
-                        return model(prompt_tokens)
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                            return model(prompt_tokens)
 
                 else:
                     if model_config.mask_token_id is None:
@@ -337,15 +341,16 @@ def performance(args: argparse.Namespace) -> None:
                         steps: int | None = steps,
                         generators=generators,
                     ) -> torch.Tensor:
-                        return sample_masked(
-                            model,
-                            tuple(initial.shape),
-                            mask_token_id,
-                            steps=steps or 1,
-                            top_k=1,
-                            initial_tokens=initial,
-                            generator=generators,
-                        )
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                            return sample_masked(
+                                model,
+                                tuple(initial.shape),
+                                mask_token_id,
+                                steps=steps or 1,
+                                top_k=1,
+                                initial_tokens=initial,
+                                generator=generators,
+                            )
 
                     network_evaluations = steps
                     variant = f"steps-{steps}"
@@ -356,7 +361,8 @@ def performance(args: argparse.Namespace) -> None:
                         mask_token_id: int = model_config.mask_token_id,
                     ) -> torch.Tensor:
                         t = initial.eq(mask_token_id).float().mean(dim=1)
-                        return model(initial, t)
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                            return model(initial, t, initial.eq(mask_token_id))
 
                 measured = timed_call(run, args.warmup, args.repeats, device)
                 first_update = timed_call(

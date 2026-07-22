@@ -86,25 +86,40 @@ def sample_masked(
         if not masked.any():
             break
         t = masked.float().mean(dim=1)
-        logits = model(x, t) / max(temperature, 1e-5)
+        # The model supports projecting only selected hidden states.  Sampling
+        # never needs logits for already revealed tokens, so keeping the
+        # vocabulary dimension to masked positions avoids a large B x L x V
+        # allocation at inference time.
+        logits = model(x, t, masked) / max(temperature, 1e-5)
         if top_k is not None:
             values = torch.topk(logits, min(top_k, logits.size(-1)), dim=-1).values
             logits = logits.masked_fill(logits < values[..., [-1]], float("-inf"))
         probabilities = F.softmax(logits, dim=-1)
+        predictions = torch.zeros_like(x)
+        confidence = torch.full(x.shape, float("-inf"), device=device)
         if isinstance(generator, Sequence):
             if len(generator) != x.size(0):
                 raise ValueError("generator count must match batch size")
-            predictions = torch.stack(
-                [
-                    torch.multinomial(probabilities[row], 1, generator=generator[row]).squeeze(-1)
-                    for row in range(x.size(0))
-                ]
-            )
+            offset = 0
+            masked_counts = masked.sum(dim=1).tolist()
+            for row, (row_generator, count) in enumerate(
+                zip(generator, masked_counts, strict=True)
+            ):
+                row_probabilities = probabilities[offset : offset + count]
+                row_predictions = torch.multinomial(
+                    row_probabilities, 1, generator=row_generator
+                ).squeeze(-1)
+                predictions[row, masked[row]] = row_predictions
+                confidence[row, masked[row]] = row_probabilities.gather(
+                    -1, row_predictions[:, None]
+                ).squeeze(-1)
+                offset += count
         else:
-            predictions = torch.multinomial(
-                probabilities.view(-1, probabilities.size(-1)), 1, generator=generator
-            ).view_as(x)
-        confidence = probabilities.gather(-1, predictions[..., None]).squeeze(-1)
+            masked_predictions = torch.multinomial(probabilities, 1, generator=generator).squeeze(
+                -1
+            )
+            predictions[masked] = masked_predictions
+            confidence[masked] = probabilities.gather(-1, masked_predictions[:, None]).squeeze(-1)
         remaining_steps = steps - step
 
         for row in range(x.size(0)):
