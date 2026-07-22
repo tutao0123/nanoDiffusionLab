@@ -15,10 +15,12 @@ out/
 wandb/
 *.pt
 *.pth
+.env
+.env.*
+config/local.env
 
 # Editor and OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-

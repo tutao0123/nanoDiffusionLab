@@ -1,0 +1,210 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "nanoDiffusionLab 106M 实验实现与首轮运行报告",
+    "description": "TinyStories AR/Masked Diffusion 实验平台实现状态与 AR step 250 阶段性证据。",
+    "generatedAt": "2026-07-21T15:39:00+08:00",
+    "sources": [
+      {
+        "id": "run-snapshot",
+        "label": "AR step 250 frozen experiment snapshot",
+        "path": "reports/data/ar_step250_snapshot.json",
+        "query": {
+          "engine": "DuckDB",
+          "sql": "SELECT * FROM read_json_auto('reports/data/ar_step250_snapshot.json');",
+          "description": "Load the frozen run, dataset, model, and training-curve snapshot used by this report.",
+          "language": "sql",
+          "tables_used": ["reports/data/ar_step250_snapshot.json"],
+          "filters": ["objective = autoregressive", "training step <= 250"],
+          "metric_definitions": [
+            "Input tokens equal global batch_size x sequence_length x gradient_accumulation_steps x world_size.",
+            "Training loss is next-token cross entropy averaged across four DDP ranks.",
+            "Tokens per second equals 262,144 global input tokens divided by synchronized optimizer-step duration."
+          ]
+        }
+      },
+      {
+        "id": "implementation",
+        "label": "nanoDiffusionLab training implementation",
+        "path": "train.py"
+      }
+    ],
+    "cards": [
+      {
+        "id": "model-parameters",
+        "description": "AR model parameter count; the paired MDLM model has 106.61M parameters.",
+        "dataset": "headline",
+        "sourceId": "run-snapshot",
+        "metrics": [{"label": "AR parameters", "field": "parameters", "format": "compact"}]
+      },
+      {
+        "id": "tokens-observed",
+        "description": "Global GPT-2 BPE input tokens processed at the frozen snapshot.",
+        "dataset": "headline",
+        "sourceId": "run-snapshot",
+        "metrics": [{"label": "Tokens observed", "field": "tokens_seen", "format": "compact"}]
+      },
+      {
+        "id": "throughput",
+        "description": "Synchronized four-GPU optimizer-step throughput at step 250.",
+        "dataset": "headline",
+        "sourceId": "run-snapshot",
+        "metrics": [{"label": "Tokens / second", "field": "tokens_per_second", "format": "compact"}]
+      },
+      {
+        "id": "validation-perplexity",
+        "description": "AR next-token perplexity on deterministic validation batches at step 250.",
+        "dataset": "headline",
+        "sourceId": "run-snapshot",
+        "metrics": [{"label": "Validation perplexity", "field": "validation_perplexity", "format": "number"}]
+      }
+    ],
+    "charts": [
+      {
+        "id": "ar-loss-curve",
+        "title": "AR training loss by processed input tokens",
+        "subtitle": "Step 1–250; 14 frozen observations across the first 65.54M tokens",
+        "type": "line",
+        "dataset": "training_curve",
+        "sourceId": "run-snapshot",
+        "encodings": {
+          "x": {"field": "tokens_m", "type": "quantitative", "label": "Input tokens", "unit": "M"},
+          "y": {"field": "loss", "type": "quantitative", "label": "Next-token cross entropy"},
+          "tooltip": [
+            {"field": "step", "type": "quantitative", "label": "Step"},
+            {"field": "accuracy", "type": "quantitative", "label": "Token accuracy"},
+            {"field": "tokens_per_second", "type": "quantitative", "label": "Tokens / second"}
+          ]
+        },
+        "xAxisTitle": "Processed input tokens (millions)",
+        "yAxisTitle": "Training loss",
+        "valueFormat": "number",
+        "layout": "full"
+      }
+    ],
+    "tables": [
+      {
+        "id": "experiment-specification",
+        "title": "Frozen experiment specification",
+        "subtitle": "Model, data, token budget, hardware, and snapshot scope",
+        "dataset": "specification",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "sourceId": "run-snapshot",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "#", "type": "number"},
+          {"field": "item", "label": "Item", "type": "text"},
+          {"field": "value", "label": "Value", "type": "text"},
+          {"field": "interpretation", "label": "Interpretation", "type": "text"}
+        ]
+      }
+    ],
+    "blocks": [
+      {"id": "title", "type": "markdown", "body": "# nanoDiffusionLab 106M 实验实现与首轮运行报告"},
+      {
+        "id": "technical-summary",
+        "type": "markdown",
+        "sourceId": "run-snapshot",
+        "body": "## 技术摘要\n\n**实验平台已经达到可运行、可恢复、可审计的正式训练状态。** 固定 revision 的 TinyStories 已转换为 473.99M 个训练 tokens 和 4.77M 个验证 tokens；106.28M 参数 AR 模型已在 4×A40 DDP 上处理 65.54M tokens。到 step 250，训练 loss 从 10.98 降至 3.29，验证 perplexity 为 26.17，稳定吞吐约 242k tokens/s。\n\n这份报告是阶段性工程与运行验证，不是最终模型比较。AR 仍在向 2B tokens 训练，106.61M 参数 MDLM 尚未开始，因此目前不能回答哪种目标生成质量更好。"
+      },
+      {"id": "headline-metrics", "type": "metric-strip", "cardIds": ["model-parameters", "tokens-observed", "throughput", "validation-perplexity"]},
+      {
+        "id": "loss-finding",
+        "type": "markdown",
+        "sourceId": "run-snapshot",
+        "body": "## 前 65.54M tokens 显示训练链路健康\n\nAR training loss 在首个快照区间持续下降，没有出现 NaN、OOM 或吞吐坍塌。step 20 之后吞吐稳定在约 241k–245k tokens/s；step 250 的训练 loss 3.285 与验证 loss 3.264 接近，当前证据尚未显示明显的训练/验证分叉。\n\n下图只用于验证优化过程和系统稳定性。横轴是四个 DDP ranks 合计读取的输入 tokens，并非有效 next-token targets；AR 每个 1024-token sequence 实际预测 1023 个 targets。"
+      },
+      {"id": "loss-chart", "type": "chart", "chartId": "ar-loss-curve", "layout": "full"},
+      {
+        "id": "scope-definitions",
+        "type": "markdown",
+        "sourceId": "run-snapshot",
+        "body": "## 比较口径已固定，但配对结果尚未形成\n\n正式比较固定同一 TinyStories revision、GPT-2 BPE、1024-token context、Transformer 主干和 2B 输入 token 预算。AR 为 106,276,032 参数；MDLM 因 mask embedding 与 time conditioning 增加到 106,610,112 参数。全局 batch 为 262,144 input tokens/optimizer step。\n\nAR validation perplexity 与 MDLM denoising loss 是不同目标下的指标。最终报告必须并列披露输入 token、有效监督 target、卡时、吞吐、显存和固定提示样本，不能把两个 loss 当作同一个 likelihood 直接排序。"
+      },
+      {"id": "spec-table", "type": "table", "tableId": "experiment-specification", "layout": "full"},
+      {
+        "id": "methodology",
+        "type": "markdown",
+        "sourceId": "implementation",
+        "body": "## 实现支持可恢复且可复核的长训练\n\n训练器以累计输入 token 而不是仅以 optimizer step 作为终止预算。数据由 memory-mapped uint16 shards 随机采样；每个 DDP rank 使用独立且可保存的数据 RNG。验证使用固定 seed，并对各 rank 的计数执行 all-reduce。\n\n每次运行保存解析后的配置、环境、源码快照、JSONL metrics、`last.pt`、`best.pt` 和 0.5B/1B/2B token checkpoints。恢复路径还原模型、优化器、GradScaler、scheduler 位置、Python/CPU/CUDA RNG 和每个 rank 的数据采样状态。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "body": "## 当前证据不能支持模型优劣结论\n\n- 快照只覆盖 AR 预算的 3.28%，早期 loss 下降不能外推最终生成质量。\n- MDLM 尚未启动，没有配对吞吐、denoising metrics 或生成样本。\n- 当前 MDLM 是可读的随机 mask denoising baseline，尚未实现精确 likelihood weighting。\n- 模型没有 KV cache；最终采样速度不是优化后的 serving 性能。\n- `peak_allocated_memory` 是 PyTorch allocated memory，不等同于 `nvidia-smi` 展示的进程总占用。"
+      },
+      {
+        "id": "next-steps",
+        "type": "markdown",
+        "body": "## 下一步以完整配对实验为准\n\n1. 保持当前 AR 运行至 2B tokens，并保存 0.5B、1B、2B checkpoints 与固定种子样本。\n2. 使用相同四卡、数据、输入 token 预算和全局 batch 自动启动 MDLM。\n3. 完成后生成最终对比报告，重点比较训练稳定性、卡时、有效监督 targets、固定 mask-ratio 验证指标和样本文本。\n4. 在首轮协议稳定后，再实现 likelihood-aware MDLM 评估和 Block Diffusion。"
+      },
+      {
+        "id": "further-questions",
+        "type": "markdown",
+        "body": "## 完整训练后需要回答的问题\n\n- 相同输入 token 预算下，MDLM 较少的输出投影计算能否转化为更高吞吐？\n- 固定 mask ratios 下的 denoising accuracy 是否随 token 预算一致改善？\n- AR 与 MDLM 在相同 prompt、长度和采样温度下分别出现哪些重复、连贯性和终止行为？\n- 后续公平性应继续固定输入 tokens，还是增加等 FLOPs/等卡时敏感性实验？"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-21T15:39:00+08:00",
+    "status": "partial",
+    "accessIssues": [
+      {
+        "id": "mdlm-pending",
+        "scope": "paired experiment",
+        "message": "The AR run is still in progress and the paired MDLM run has not started; final comparative conclusions are unavailable."
+      }
+    ],
+    "datasets": {
+      "headline": [
+        {
+          "parameters": 106276032,
+          "tokens_seen": 65536000,
+          "tokens_per_second": 242130.4244,
+          "validation_perplexity": 26.1655481117
+        }
+      ],
+      "training_curve": [
+        {"step": 1, "tokens_m": 0.262144, "loss": 10.9770815372, "accuracy": 0.0000229106, "tokens_per_second": 200391.13},
+        {"step": 20, "tokens_m": 5.24288, "loss": 9.0496007204, "accuracy": 0.1061904326, "tokens_per_second": 245396.59},
+        {"step": 40, "tokens_m": 10.48576, "loss": 7.7572573423, "accuracy": 0.1881758614, "tokens_per_second": 244884.43},
+        {"step": 60, "tokens_m": 15.72864, "loss": 6.4433569908, "accuracy": 0.2250809506, "tokens_per_second": 243838.31},
+        {"step": 80, "tokens_m": 20.97152, "loss": 5.2512577772, "accuracy": 0.2456240836, "tokens_per_second": 242410.47},
+        {"step": 100, "tokens_m": 26.2144, "loss": 4.5176464915, "accuracy": 0.2604624878, "tokens_per_second": 243161.98},
+        {"step": 120, "tokens_m": 31.45728, "loss": 4.0993384123, "accuracy": 0.27069587, "tokens_per_second": 242664.44},
+        {"step": 140, "tokens_m": 36.70016, "loss": 3.8981666267, "accuracy": 0.2780043377, "tokens_per_second": 242218.64},
+        {"step": 160, "tokens_m": 41.94304, "loss": 3.7804186344, "accuracy": 0.2809483443, "tokens_per_second": 241644.37},
+        {"step": 180, "tokens_m": 47.18592, "loss": 3.662299335, "accuracy": 0.2919301381, "tokens_per_second": 242352.99},
+        {"step": 200, "tokens_m": 52.4288, "loss": 3.5548709333, "accuracy": 0.3048478739, "tokens_per_second": 243481.22},
+        {"step": 220, "tokens_m": 57.67168, "loss": 3.4602570534, "accuracy": 0.3148750611, "tokens_per_second": 242570.03},
+        {"step": 240, "tokens_m": 62.91456, "loss": 3.3179081976, "accuracy": 0.3417758737, "tokens_per_second": 242288.01},
+        {"step": 250, "tokens_m": 65.536, "loss": 3.2852088511, "accuracy": 0.3464076246, "tokens_per_second": 242130.42}
+      ],
+      "specification": [
+        {"order": 1, "item": "Dataset", "value": "TinyStories @ f54c09fd", "interpretation": "2,119,719 train documents; pinned revision"},
+        {"order": 2, "item": "Tokenizer", "value": "GPT-2 BPE (50,257)", "interpretation": "473,992,236 train tokens"},
+        {"order": 3, "item": "Backbone", "value": "12L / 576d / 9H / 1024 context", "interpretation": "64-dimensional attention heads"},
+        {"order": 4, "item": "Formal budget", "value": "2B input tokens per objective", "interpretation": "Approximately 4.22 TinyStories epochs"},
+        {"order": 5, "item": "Global batch", "value": "262,144 input tokens", "interpretation": "32 sequences/GPU x 4 GPUs x 2 accumulation x 1024"},
+        {"order": 6, "item": "Hardware", "value": "4× NVIDIA A40 48GB", "interpretation": "DDP over PHB PCIe; no NVLink"},
+        {"order": 7, "item": "Snapshot scope", "value": "AR step 250", "interpretation": "65,536,000 tokens; MDLM pending"}
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "run-snapshot",
+      "label": "AR step 250 frozen experiment snapshot",
+      "path": "reports/data/ar_step250_snapshot.json"
+    },
+    {
+      "id": "implementation",
+      "label": "nanoDiffusionLab training implementation",
+      "path": "train.py"
+    }
+  ]
+}

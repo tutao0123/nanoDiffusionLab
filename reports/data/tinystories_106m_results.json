@@ -1,0 +1,729 @@
+{
+  "experiment": "TinyStories 106M, 2B input tokens per objective",
+  "seeds": [
+    1337,
+    2027
+  ],
+  "runs": {
+    "ar_seed1337": {
+      "objective": "autoregressive",
+      "parameter_count": 106276032,
+      "tokens_seen": 2000158720,
+      "elapsed_seconds": 11489.372843027115,
+      "mean_training_tokens_per_second": 242869.06691665528,
+      "peak_memory_mb": 18769.5595703125,
+      "final_metrics": {
+        "val_loss": 1.2368070167996434,
+        "val_perplexity": 3.4445973455238335,
+        "val_bits_per_token": 1.7843353496735186,
+        "val_token_accuracy": 0.663505009775171
+      },
+      "evaluations": [
+        {
+          "step": 0,
+          "tokens_seen": 0,
+          "val_loss": 10.979617933047715
+        },
+        {
+          "step": 250,
+          "tokens_seen": 65536000,
+          "val_loss": 3.264443587883943
+        },
+        {
+          "step": 500,
+          "tokens_seen": 131072000,
+          "val_loss": 2.276026261703476
+        },
+        {
+          "step": 750,
+          "tokens_seen": 196608000,
+          "val_loss": 1.9043732599312493
+        },
+        {
+          "step": 1000,
+          "tokens_seen": 262144000,
+          "val_loss": 1.7296545526498923
+        },
+        {
+          "step": 1250,
+          "tokens_seen": 327680000,
+          "val_loss": 1.6297955122394878
+        },
+        {
+          "step": 1500,
+          "tokens_seen": 393216000,
+          "val_loss": 1.560070005772983
+        },
+        {
+          "step": 1750,
+          "tokens_seen": 458752000,
+          "val_loss": 1.5130677626862437
+        },
+        {
+          "step": 2000,
+          "tokens_seen": 524288000,
+          "val_loss": 1.4745536125533625
+        },
+        {
+          "step": 2250,
+          "tokens_seen": 589824000,
+          "val_loss": 1.442384165356469
+        },
+        {
+          "step": 2500,
+          "tokens_seen": 655360000,
+          "val_loss": 1.4178109684531173
+        },
+        {
+          "step": 2750,
+          "tokens_seen": 720896000,
+          "val_loss": 1.3955165575909358
+        },
+        {
+          "step": 3000,
+          "tokens_seen": 786432000,
+          "val_loss": 1.3758759738180062
+        },
+        {
+          "step": 3250,
+          "tokens_seen": 851968000,
+          "val_loss": 1.3595670653461593
+        },
+        {
+          "step": 3500,
+          "tokens_seen": 917504000,
+          "val_loss": 1.3456437857619479
+        },
+        {
+          "step": 3750,
+          "tokens_seen": 983040000,
+          "val_loss": 1.3323883459365262
+        },
+        {
+          "step": 4000,
+          "tokens_seen": 1048576000,
+          "val_loss": 1.3203654806634897
+        },
+        {
+          "step": 4250,
+          "tokens_seen": 1114112000,
+          "val_loss": 1.310920749638204
+        },
+        {
+          "step": 4500,
+          "tokens_seen": 1179648000,
+          "val_loss": 1.3006053846252978
+        },
+        {
+          "step": 4750,
+          "tokens_seen": 1245184000,
+          "val_loss": 1.2930102858259065
+        },
+        {
+          "step": 5000,
+          "tokens_seen": 1310720000,
+          "val_loss": 1.2837589207982039
+        },
+        {
+          "step": 5250,
+          "tokens_seen": 1376256000,
+          "val_loss": 1.2772903606455812
+        },
+        {
+          "step": 5500,
+          "tokens_seen": 1441792000,
+          "val_loss": 1.2697015204853792
+        },
+        {
+          "step": 5750,
+          "tokens_seen": 1507328000,
+          "val_loss": 1.2628783762047135
+        },
+        {
+          "step": 6000,
+          "tokens_seen": 1572864000,
+          "val_loss": 1.2572899006445504
+        },
+        {
+          "step": 6250,
+          "tokens_seen": 1638400000,
+          "val_loss": 1.2522979631918034
+        },
+        {
+          "step": 6500,
+          "tokens_seen": 1703936000,
+          "val_loss": 1.248362081607882
+        },
+        {
+          "step": 6750,
+          "tokens_seen": 1769472000,
+          "val_loss": 1.2449060225649897
+        },
+        {
+          "step": 7000,
+          "tokens_seen": 1835008000,
+          "val_loss": 1.2417436288365638
+        },
+        {
+          "step": 7250,
+          "tokens_seen": 1900544000,
+          "val_loss": 1.2394283768252077
+        },
+        {
+          "step": 7500,
+          "tokens_seen": 1966080000,
+          "val_loss": 1.2373815929901333
+        },
+        {
+          "step": 7630,
+          "tokens_seen": 2000158720,
+          "val_loss": 1.2368070167996434
+        }
+      ]
+    },
+    "mdlm_seed1337": {
+      "objective": "masked_diffusion",
+      "parameter_count": 106610112,
+      "tokens_seen": 2000158720,
+      "elapsed_seconds": 9183.646185159683,
+      "mean_training_tokens_per_second": 287053.4892676984,
+      "peak_memory_mb": 14080.05078125,
+      "final_metrics": {
+        "val_loss_mask_0.10": 0.6528740407213968,
+        "val_accuracy_mask_0.10": 0.831134333363822,
+        "val_loss_mask_0.25": 0.8502475154016733,
+        "val_accuracy_mask_0.25": 0.7882224628948854,
+        "val_loss_mask_0.50": 1.4219008773546515,
+        "val_accuracy_mask_0.50": 0.6708796648721379,
+        "val_loss_mask_0.75": 2.6882283740964494,
+        "val_accuracy_mask_0.75": 0.4409358010334143,
+        "val_loss_mask_0.90": 4.204498264727889,
+        "val_accuracy_mask_0.90": 0.22268838810323194,
+        "val_loss": 1.963549814460412,
+        "val_masked_accuracy": 0.5907721300534983
+      },
+      "evaluations": [
+        {
+          "step": 0,
+          "tokens_seen": 0,
+          "val_loss": 10.977687096761576
+        },
+        {
+          "step": 250,
+          "tokens_seen": 65536000,
+          "val_loss": 5.848045365594025
+        },
+        {
+          "step": 500,
+          "tokens_seen": 131072000,
+          "val_loss": 5.82288700288569
+        },
+        {
+          "step": 750,
+          "tokens_seen": 196608000,
+          "val_loss": 5.57865439406626
+        },
+        {
+          "step": 1000,
+          "tokens_seen": 262144000,
+          "val_loss": 4.201667148317904
+        },
+        {
+          "step": 1250,
+          "tokens_seen": 327680000,
+          "val_loss": 3.5454719457035067
+        },
+        {
+          "step": 1500,
+          "tokens_seen": 393216000,
+          "val_loss": 3.1538998109549565
+        },
+        {
+          "step": 1750,
+          "tokens_seen": 458752000,
+          "val_loss": 2.9047550464369065
+        },
+        {
+          "step": 2000,
+          "tokens_seen": 524288000,
+          "val_loss": 2.7264734849319967
+        },
+        {
+          "step": 2250,
+          "tokens_seen": 589824000,
+          "val_loss": 2.5927546713549687
+        },
+        {
+          "step": 2500,
+          "tokens_seen": 655360000,
+          "val_loss": 2.4839247870248022
+        },
+        {
+          "step": 2750,
+          "tokens_seen": 720896000,
+          "val_loss": 2.400565780587833
+        },
+        {
+          "step": 3000,
+          "tokens_seen": 786432000,
+          "val_loss": 2.3327288350390765
+        },
+        {
+          "step": 3250,
+          "tokens_seen": 851968000,
+          "val_loss": 2.2811458572199768
+        },
+        {
+          "step": 3500,
+          "tokens_seen": 917504000,
+          "val_loss": 2.2356684710170063
+        },
+        {
+          "step": 3750,
+          "tokens_seen": 983040000,
+          "val_loss": 2.1988322703802274
+        },
+        {
+          "step": 4000,
+          "tokens_seen": 1048576000,
+          "val_loss": 2.166891223497986
+        },
+        {
+          "step": 4250,
+          "tokens_seen": 1114112000,
+          "val_loss": 2.138201610973063
+        },
+        {
+          "step": 4500,
+          "tokens_seen": 1179648000,
+          "val_loss": 2.1113730232450685
+        },
+        {
+          "step": 4750,
+          "tokens_seen": 1245184000,
+          "val_loss": 2.089546035505855
+        },
+        {
+          "step": 5000,
+          "tokens_seen": 1310720000,
+          "val_loss": 2.0705373357616432
+        },
+        {
+          "step": 5250,
+          "tokens_seen": 1376256000,
+          "val_loss": 2.0536372364317934
+        },
+        {
+          "step": 5500,
+          "tokens_seen": 1441792000,
+          "val_loss": 2.0359385173338898
+        },
+        {
+          "step": 5750,
+          "tokens_seen": 1507328000,
+          "val_loss": 2.0217685628240347
+        },
+        {
+          "step": 6000,
+          "tokens_seen": 1572864000,
+          "val_loss": 2.011714975167486
+        },
+        {
+          "step": 6250,
+          "tokens_seen": 1638400000,
+          "val_loss": 1.9995417447598534
+        },
+        {
+          "step": 6500,
+          "tokens_seen": 1703936000,
+          "val_loss": 1.9908543731032147
+        },
+        {
+          "step": 6750,
+          "tokens_seen": 1769472000,
+          "val_loss": 1.9823646399162942
+        },
+        {
+          "step": 7000,
+          "tokens_seen": 1835008000,
+          "val_loss": 1.9760582617508269
+        },
+        {
+          "step": 7250,
+          "tokens_seen": 1900544000,
+          "val_loss": 1.9704132176810176
+        },
+        {
+          "step": 7500,
+          "tokens_seen": 1966080000,
+          "val_loss": 1.9658783246122078
+        },
+        {
+          "step": 7630,
+          "tokens_seen": 2000158720,
+          "val_loss": 1.963549814460412
+        }
+      ]
+    },
+    "ar_seed2027": {
+      "objective": "autoregressive",
+      "parameter_count": 106276032,
+      "tokens_seen": 2000158720,
+      "elapsed_seconds": 10542.077020168304,
+      "mean_training_tokens_per_second": 244840.2034478073,
+      "peak_memory_mb": 18769.5595703125,
+      "final_metrics": {
+        "val_loss": 1.240855892475982,
+        "val_perplexity": 3.458572364396406,
+        "val_bits_per_token": 1.7901766425329482,
+        "val_token_accuracy": 0.6631094208211143
+      },
+      "evaluations": [
+        {
+          "step": 0,
+          "tokens_seen": 0,
+          "val_loss": 10.96757256441685
+        },
+        {
+          "step": 250,
+          "tokens_seen": 65536000,
+          "val_loss": 3.2511387441864463
+        },
+        {
+          "step": 500,
+          "tokens_seen": 131072000,
+          "val_loss": 2.25518763925323
+        },
+        {
+          "step": 750,
+          "tokens_seen": 196608000,
+          "val_loss": 1.8981457409154867
+        },
+        {
+          "step": 1000,
+          "tokens_seen": 262144000,
+          "val_loss": 1.7310955028962762
+        },
+        {
+          "step": 1250,
+          "tokens_seen": 327680000,
+          "val_loss": 1.6372087853395345
+        },
+        {
+          "step": 1500,
+          "tokens_seen": 393216000,
+          "val_loss": 1.5676279494955858
+        },
+        {
+          "step": 1750,
+          "tokens_seen": 458752000,
+          "val_loss": 1.518999998031124
+        },
+        {
+          "step": 2000,
+          "tokens_seen": 524288000,
+          "val_loss": 1.4824550848669087
+        },
+        {
+          "step": 2250,
+          "tokens_seen": 589824000,
+          "val_loss": 1.4522822256078936
+        },
+        {
+          "step": 2500,
+          "tokens_seen": 655360000,
+          "val_loss": 1.4243833241691104
+        },
+        {
+          "step": 2750,
+          "tokens_seen": 720896000,
+          "val_loss": 1.4015972819845697
+        },
+        {
+          "step": 3000,
+          "tokens_seen": 786432000,
+          "val_loss": 1.3831442809640953
+        },
+        {
+          "step": 3250,
+          "tokens_seen": 851968000,
+          "val_loss": 1.3676734499218177
+        },
+        {
+          "step": 3500,
+          "tokens_seen": 917504000,
+          "val_loss": 1.3525278413983268
+        },
+        {
+          "step": 3750,
+          "tokens_seen": 983040000,
+          "val_loss": 1.337882267717975
+        },
+        {
+          "step": 4000,
+          "tokens_seen": 1048576000,
+          "val_loss": 1.3267217149482795
+        },
+        {
+          "step": 4250,
+          "tokens_seen": 1114112000,
+          "val_loss": 1.315744278088343
+        },
+        {
+          "step": 4500,
+          "tokens_seen": 1179648000,
+          "val_loss": 1.3060885551504842
+        },
+        {
+          "step": 4750,
+          "tokens_seen": 1245184000,
+          "val_loss": 1.2966830509965137
+        },
+        {
+          "step": 5000,
+          "tokens_seen": 1310720000,
+          "val_loss": 1.2877052747142863
+        },
+        {
+          "step": 5250,
+          "tokens_seen": 1376256000,
+          "val_loss": 1.2810903002905822
+        },
+        {
+          "step": 5500,
+          "tokens_seen": 1441792000,
+          "val_loss": 1.2732042359233717
+        },
+        {
+          "step": 5750,
+          "tokens_seen": 1507328000,
+          "val_loss": 1.2670399595915047
+        },
+        {
+          "step": 6000,
+          "tokens_seen": 1572864000,
+          "val_loss": 1.2612252765853151
+        },
+        {
+          "step": 6250,
+          "tokens_seen": 1638400000,
+          "val_loss": 1.2570791086027233
+        },
+        {
+          "step": 6500,
+          "tokens_seen": 1703936000,
+          "val_loss": 1.2527526900215933
+        },
+        {
+          "step": 6750,
+          "tokens_seen": 1769472000,
+          "val_loss": 1.2492066309715413
+        },
+        {
+          "step": 7000,
+          "tokens_seen": 1835008000,
+          "val_loss": 1.245740675343563
+        },
+        {
+          "step": 7250,
+          "tokens_seen": 1900544000,
+          "val_loss": 1.2433961273521505
+        },
+        {
+          "step": 7500,
+          "tokens_seen": 1966080000,
+          "val_loss": 1.2419870878128245
+        },
+        {
+          "step": 7630,
+          "tokens_seen": 2000158720,
+          "val_loss": 1.240855892475982
+        }
+      ]
+    },
+    "mdlm_seed2027": {
+      "objective": "masked_diffusion",
+      "parameter_count": 106610112,
+      "tokens_seen": 2000158720,
+      "elapsed_seconds": 9338.595509529114,
+      "mean_training_tokens_per_second": 289384.5921997931,
+      "peak_memory_mb": 13872.857421875,
+      "final_metrics": {
+        "val_loss_mask_0.10": 0.6516766000504196,
+        "val_accuracy_mask_0.10": 0.8329750907039849,
+        "val_loss_mask_0.25": 0.8515441126436251,
+        "val_accuracy_mask_0.25": 0.7884863553853898,
+        "val_loss_mask_0.50": 1.4320048640368925,
+        "val_accuracy_mask_0.50": 0.6690421671032217,
+        "val_loss_mask_0.75": 2.703066568712587,
+        "val_accuracy_mask_0.75": 0.439243288835575,
+        "val_loss_mask_0.90": 4.214393859608683,
+        "val_accuracy_mask_0.90": 0.22141155424424322,
+        "val_loss": 1.9705372010104416,
+        "val_masked_accuracy": 0.5902316912544829
+      },
+      "evaluations": [
+        {
+          "step": 0,
+          "tokens_seen": 0,
+          "val_loss": 10.975969347551853
+        },
+        {
+          "step": 250,
+          "tokens_seen": 65536000,
+          "val_loss": 5.848194224142377
+        },
+        {
+          "step": 500,
+          "tokens_seen": 131072000,
+          "val_loss": 5.822746724558362
+        },
+        {
+          "step": 750,
+          "tokens_seen": 196608000,
+          "val_loss": 5.5617564015214915
+        },
+        {
+          "step": 1000,
+          "tokens_seen": 262144000,
+          "val_loss": 4.202238854307836
+        },
+        {
+          "step": 1250,
+          "tokens_seen": 327680000,
+          "val_loss": 3.5717439458185267
+        },
+        {
+          "step": 1500,
+          "tokens_seen": 393216000,
+          "val_loss": 3.201951875564576
+        },
+        {
+          "step": 1750,
+          "tokens_seen": 458752000,
+          "val_loss": 2.9509823749711037
+        },
+        {
+          "step": 2000,
+          "tokens_seen": 524288000,
+          "val_loss": 2.764717460565361
+        },
+        {
+          "step": 2250,
+          "tokens_seen": 589824000,
+          "val_loss": 2.6170023461077383
+        },
+        {
+          "step": 2500,
+          "tokens_seen": 655360000,
+          "val_loss": 2.5036449123786837
+        },
+        {
+          "step": 2750,
+          "tokens_seen": 720896000,
+          "val_loss": 2.41588666438147
+        },
+        {
+          "step": 3000,
+          "tokens_seen": 786432000,
+          "val_loss": 2.34789184091666
+        },
+        {
+          "step": 3250,
+          "tokens_seen": 851968000,
+          "val_loss": 2.290257883949829
+        },
+        {
+          "step": 3500,
+          "tokens_seen": 917504000,
+          "val_loss": 2.242164604786375
+        },
+        {
+          "step": 3750,
+          "tokens_seen": 983040000,
+          "val_loss": 2.2052720521961406
+        },
+        {
+          "step": 4000,
+          "tokens_seen": 1048576000,
+          "val_loss": 2.1710977040896817
+        },
+        {
+          "step": 4250,
+          "tokens_seen": 1114112000,
+          "val_loss": 2.143366914725755
+        },
+        {
+          "step": 4500,
+          "tokens_seen": 1179648000,
+          "val_loss": 2.118694705616917
+        },
+        {
+          "step": 4750,
+          "tokens_seen": 1245184000,
+          "val_loss": 2.09570698844594
+        },
+        {
+          "step": 5000,
+          "tokens_seen": 1310720000,
+          "val_loss": 2.076446381978487
+        },
+        {
+          "step": 5250,
+          "tokens_seen": 1376256000,
+          "val_loss": 2.0595635676277366
+        },
+        {
+          "step": 5500,
+          "tokens_seen": 1441792000,
+          "val_loss": 2.042143097317355
+        },
+        {
+          "step": 5750,
+          "tokens_seen": 1507328000,
+          "val_loss": 2.028796575153394
+        },
+        {
+          "step": 6000,
+          "tokens_seen": 1572864000,
+          "val_loss": 2.0170097833131195
+        },
+        {
+          "step": 6250,
+          "tokens_seen": 1638400000,
+          "val_loss": 2.0060225908559874
+        },
+        {
+          "step": 6500,
+          "tokens_seen": 1703936000,
+          "val_loss": 1.9974236981244082
+        },
+        {
+          "step": 6750,
+          "tokens_seen": 1769472000,
+          "val_loss": 1.9898372272566243
+        },
+        {
+          "step": 7000,
+          "tokens_seen": 1835008000,
+          "val_loss": 1.982654432551599
+        },
+        {
+          "step": 7250,
+          "tokens_seen": 1900544000,
+          "val_loss": 1.9769820244994314
+        },
+        {
+          "step": 7500,
+          "tokens_seen": 1966080000,
+          "val_loss": 1.9729770939595113
+        },
+        {
+          "step": 7630,
+          "tokens_seen": 2000158720,
+          "val_loss": 1.9705372010104416
+        }
+      ]
+    }
+  }
+}

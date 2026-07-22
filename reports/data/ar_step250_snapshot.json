@@ -1,0 +1,52 @@
+{
+  "snapshot_at": "2026-07-21T15:39:00+08:00",
+  "status": "partial",
+  "dataset": {
+    "name": "roneneldan/TinyStories",
+    "revision": "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64",
+    "tokenizer": "GPT-2 BPE",
+    "train_documents": 2119719,
+    "train_tokens": 473992236,
+    "validation_documents": 21990,
+    "validation_tokens": 4765918
+  },
+  "model": {
+    "objective": "autoregressive",
+    "parameters": 106276032,
+    "layers": 12,
+    "hidden_size": 576,
+    "attention_heads": 9,
+    "context_length": 1024
+  },
+  "run": {
+    "world_size": 4,
+    "gpu": "NVIDIA A40 48GB",
+    "input_tokens_per_step": 262144,
+    "planned_tokens": 2000000000,
+    "snapshot_step": 250,
+    "tokens_seen": 65536000,
+    "train_loss": 3.2852088511,
+    "train_token_accuracy": 0.3464076246,
+    "validation_loss": 3.2644435879,
+    "validation_perplexity": 26.1655481117,
+    "validation_token_accuracy": 0.3498633003,
+    "tokens_per_second": 242130.4244,
+    "peak_allocated_memory_mib": 18769.5596
+  },
+  "training_curve": [
+    {"step": 1, "tokens_m": 0.262144, "loss": 10.9770815372, "accuracy": 0.0000229106, "tokens_per_second": 200391.13},
+    {"step": 20, "tokens_m": 5.24288, "loss": 9.0496007204, "accuracy": 0.1061904326, "tokens_per_second": 245396.59},
+    {"step": 40, "tokens_m": 10.48576, "loss": 7.7572573423, "accuracy": 0.1881758614, "tokens_per_second": 244884.43},
+    {"step": 60, "tokens_m": 15.72864, "loss": 6.4433569908, "accuracy": 0.2250809506, "tokens_per_second": 243838.31},
+    {"step": 80, "tokens_m": 20.97152, "loss": 5.2512577772, "accuracy": 0.2456240836, "tokens_per_second": 242410.47},
+    {"step": 100, "tokens_m": 26.2144, "loss": 4.5176464915, "accuracy": 0.2604624878, "tokens_per_second": 243161.98},
+    {"step": 120, "tokens_m": 31.45728, "loss": 4.0993384123, "accuracy": 0.27069587, "tokens_per_second": 242664.44},
+    {"step": 140, "tokens_m": 36.70016, "loss": 3.8981666267, "accuracy": 0.2780043377, "tokens_per_second": 242218.64},
+    {"step": 160, "tokens_m": 41.94304, "loss": 3.7804186344, "accuracy": 0.2809483443, "tokens_per_second": 241644.37},
+    {"step": 180, "tokens_m": 47.18592, "loss": 3.662299335, "accuracy": 0.2919301381, "tokens_per_second": 242352.99},
+    {"step": 200, "tokens_m": 52.4288, "loss": 3.5548709333, "accuracy": 0.3048478739, "tokens_per_second": 243481.22},
+    {"step": 220, "tokens_m": 57.67168, "loss": 3.4602570534, "accuracy": 0.3148750611, "tokens_per_second": 242570.03},
+    {"step": 240, "tokens_m": 62.91456, "loss": 3.3179081976, "accuracy": 0.3417758737, "tokens_per_second": 242288.01},
+    {"step": 250, "tokens_m": 65.536, "loss": 3.2852088511, "accuracy": 0.3464076246, "tokens_per_second": 242130.42}
+  ]
+}

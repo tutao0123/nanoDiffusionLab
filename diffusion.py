@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 import torch
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ def corrupt_tokens(
     mask_token_id: int,
     t: torch.Tensor | None = None,
     *,
-    generator: torch.Generator | None = None,
+    generator: torch.Generator | Sequence[torch.Generator] | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Replace tokens with MASK at a independently sampled rate per sequence."""
     batch, length = tokens.shape
@@ -39,8 +39,11 @@ def masked_diffusion_loss(
     model: torch.nn.Module,
     clean_tokens: torch.Tensor,
     mask_token_id: int,
+    t: torch.Tensor | None = None,
+    *,
+    generator: torch.Generator | None = None,
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    noisy, loss_mask, t = corrupt_tokens(clean_tokens, mask_token_id)
+    noisy, loss_mask, t = corrupt_tokens(clean_tokens, mask_token_id, t, generator=generator)
     logits = model(noisy, t, loss_mask)
     targets = clean_tokens[loss_mask]
     loss = F.cross_entropy(logits, targets)
@@ -48,6 +51,8 @@ def masked_diffusion_loss(
     metrics = {
         "masked_accuracy": float(accuracy.detach()),
         "mask_ratio": float(loss_mask.float().mean()),
+        "target_tokens": float(loss_mask.sum()),
+        "correct_tokens": float((logits.argmax(dim=-1) == targets).sum()),
     }
     return loss, metrics
 
@@ -62,6 +67,7 @@ def sample_masked(
     top_k: int | None = None,
     initial_tokens: torch.Tensor | None = None,
     callback: Callable[[int, torch.Tensor], None] | None = None,
+    generator: torch.Generator | None = None,
 ) -> torch.Tensor:
     """Generate by repeatedly revealing the most confident masked positions."""
     if steps < 1:
@@ -80,15 +86,40 @@ def sample_masked(
         if not masked.any():
             break
         t = masked.float().mean(dim=1)
-        logits = model(x, t) / max(temperature, 1e-5)
+        # The model supports projecting only selected hidden states.  Sampling
+        # never needs logits for already revealed tokens, so keeping the
+        # vocabulary dimension to masked positions avoids a large B x L x V
+        # allocation at inference time.
+        logits = model(x, t, masked) / max(temperature, 1e-5)
         if top_k is not None:
             values = torch.topk(logits, min(top_k, logits.size(-1)), dim=-1).values
             logits = logits.masked_fill(logits < values[..., [-1]], float("-inf"))
         probabilities = F.softmax(logits, dim=-1)
-        predictions = torch.multinomial(probabilities.view(-1, probabilities.size(-1)), 1).view_as(
-            x
-        )
-        confidence = probabilities.gather(-1, predictions[..., None]).squeeze(-1)
+        predictions = torch.zeros_like(x)
+        confidence = torch.full(x.shape, float("-inf"), device=device)
+        if isinstance(generator, Sequence):
+            if len(generator) != x.size(0):
+                raise ValueError("generator count must match batch size")
+            offset = 0
+            masked_counts = masked.sum(dim=1).tolist()
+            for row, (row_generator, count) in enumerate(
+                zip(generator, masked_counts, strict=True)
+            ):
+                row_probabilities = probabilities[offset : offset + count]
+                row_predictions = torch.multinomial(
+                    row_probabilities, 1, generator=row_generator
+                ).squeeze(-1)
+                predictions[row, masked[row]] = row_predictions
+                confidence[row, masked[row]] = row_probabilities.gather(
+                    -1, row_predictions[:, None]
+                ).squeeze(-1)
+                offset += count
+        else:
+            masked_predictions = torch.multinomial(probabilities, 1, generator=generator).squeeze(
+                -1
+            )
+            predictions[masked] = masked_predictions
+            confidence[masked] = probabilities.gather(-1, masked_predictions[:, None]).squeeze(-1)
         remaining_steps = steps - step
 
         for row in range(x.size(0)):

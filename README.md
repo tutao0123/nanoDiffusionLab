@@ -1,28 +1,125 @@
 # nanoDiffusionLab
 
-A minimal PyTorch laboratory for learning, training, and comparing autoregressive and diffusion
-language models from scratch.
+**A compact laboratory for fair comparisons between autoregressive and diffusion language
+models.**
 
-The project borrows nanoGPT's small-and-readable philosophy, while keeping its implementation
-independent. One Transformer supports two runnable objectives today:
+[Chinese](README.zh-CN.md) · [Architecture](docs/architecture.md) ·
+[Training report](reports/tinystories_106m.md) ·
+[Generation benchmark](reports/tinystories_106m_generation.md)
 
-- **autoregressive** — causal attention and next-token prediction;
-- **masked diffusion** — bidirectional attention, random mask corruption, and iterative parallel
-  decoding.
+![Autoregressive decoding reveals tokens from left to right; masked diffusion reveals multiple
+positions in parallel.](docs/assets/decoding_comparison.gif)
 
-Block diffusion is the next architecture milestone. It is documented but not presented as
-implemented.
+## Why this project?
+
+nanoDiffusionLab borrows nanoGPT's small-and-readable philosophy while keeping its implementation
+independent. A single Transformer implementation supports two runnable objectives, making it
+possible to hold the backbone, data, context length, and input-token budget fixed.
+
+| Objective | Attention | Training signal | Decoding |
+|---|---|---|---|
+| Autoregressive (AR) | Causal | Predict the next token | Sequential, left to right |
+| Masked diffusion (MDLM) | Bidirectional | Restore randomly masked tokens | Iterative parallel unmasking |
+
+Block diffusion is the next architecture milestone and is not implemented yet.
+
+## How masked diffusion works
+
+![Character-level masked diffusion animation](docs/assets/character_diffusion.gif)
+
+The animation shows the core implementation pattern:
+
+1. **Corrupt during training:** sample a noise level and replace a corresponding fraction of the
+   clean sequence with mask tokens.
+2. **Predict in both directions:** feed the corrupted sequence and noise level to a bidirectional
+   Transformer, and compute cross-entropy only at masked positions.
+3. **Decode in parallel:** begin generation from an all-mask sequence, predict every unresolved
+   position, reveal a high-confidence subset, and repeat until no masks remain.
+
+The animation uses characters to make individual positions easy to see. The completed 106M
+TinyStories experiment applies the same process to GPT-2 BPE tokens rather than raw characters.
+
+## Completed 106M experiment
+
+Two independent seeds were trained on the pinned TinyStories dataset with GPT-2 BPE. Each
+objective received **2.000B input tokens** using the same model backbone and context length.
+
+![Final metrics for two independent seeds](docs/assets/replication_summary.png)
+
+| Result | AR seed 1337 | AR seed 2027 | MDLM seed 1337 | MDLM seed 2027 |
+|---|---:|---:|---:|---:|
+| Parameters | 106.28M | 106.28M | 106.61M | 106.61M |
+| Validation loss | 1.2368 | 1.2409 | 1.9635 | 1.9705 |
+| Perplexity | 3.4446 | 3.4586 | — | — |
+| Masked accuracy | — | — | 59.08% | 59.02% |
+| Training throughput | 242.9K tok/s | 244.8K tok/s | 287.1K tok/s | 289.4K tok/s |
+
+> AR cross-entropy and MDLM denoising loss are objective-specific. They must not be interpreted as
+> the same likelihood metric.
+
+![Validation curves across two random seeds](docs/assets/training_curves.png)
+
+The near-overlapping curves and close final metrics show that both objectives are reproducible
+across the two tested seeds. The included fixed-seed samples are currently more coherent for AR;
+improving MDLM sampling quality remains an active research target.
+
+The completed 10,000-sample generation benchmark quantifies that gap. At batch 1, MDLM sampling is
+1.76× faster than cached AR at 64 denoising steps and 13.63× faster at 8 steps. AR nevertheless wins
+the large majority of blinded quality comparisons: aggregate MDLM pairwise utility rises from
+0.0028 at 8 steps to 0.0745 at 64 steps. Flash and Pro judges agree on 98% of the audited pairs.
+
+![TinyStories 106M quality-latency frontier](docs/assets/quality_latency_frontier.png)
+
+Detailed outputs:
+
+- [seed 1337 comparison](reports/tinystories_106m.md)
+- [seed 2027 comparison](reports/tinystories_106m_seed2027.md)
+- [generation quality and speed benchmark](reports/tinystories_106m_generation.md)
+- [implementation and early-run snapshot](reports/initial_run_report.html)
+
+## Experiment platform
+
+The reported runs were conducted on a single Linux server with:
+
+- **4× NVIDIA A40 48 GB** GPUs;
+- no NVLink, with every GPU-to-GPU path reported as PHB;
+- all GPUs attached to the same NUMA node;
+- PyTorch DistributedDataParallel with BF16;
+- batch size 32 per GPU and 2 gradient-accumulation steps;
+- an effective 262,144 input tokens per optimizer step.
+
+This is a practical reference platform, not a hardware requirement. The reported throughput and
+elapsed time are machine-specific; the model and experiment code can run on CPU, one GPU, or a DDP
+setup with a different number of GPUs.
+
+### Run it on stronger hardware
+
+Experiments on newer or larger GPU systems are welcome. More compute can be used to test larger
+models, longer token budgets, additional random seeds, longer contexts, more diffusion sampling
+steps, or the planned block-diffusion objective. Useful extensions include:
+
+- scaling the shared backbone to 350M, 1B, or larger while matching parameter counts;
+- increasing the training-token budget and checking whether the AR/MDLM gap changes;
+- measuring quality, sampling latency, and memory together instead of reporting loss alone;
+- repeating each configuration across at least three seeds;
+- benchmarking DDP scaling on NVLink, NVSwitch, H100, H200, B100, or other systems.
+
+For a comparable contribution, report the GPU model and topology, software versions, precision,
+world size, per-GPU batch size, gradient accumulation, parameter count, context length, input-token
+budget, supervised-target count, random seeds, throughput, and objective-specific validation
+metrics. Pull requests with reproducible configurations and reports are encouraged.
 
 ## What works
 
-- compact character-level training on any UTF-8 text file;
-- masked-only output projection to reduce diffusion logits memory;
-- time/noise-level conditioning;
-- confidence-based parallel unmasking and prompt-preserving infill;
-- an autoregressive baseline using the same Transformer blocks;
-- single-GPU, CPU, and DDP training with gradient accumulation;
-- BF16/FP16 autocast, gradient checkpointing, SDPA, optional `torch.compile`;
-- tests for corruption, causal versus bidirectional attention, and sampling.
+- one Transformer for AR and masked diffusion;
+- character smoke tests and memory-mapped token shards;
+- causal and bidirectional SDPA attention;
+- masked-only output projection for lower MDLM memory;
+- time/noise-level conditioning and parallel unmasking;
+- CPU, single-GPU, and DDP training;
+- BF16/FP16, gradient accumulation, checkpointing, and exact resume;
+- atomic checkpoints, JSONL metrics, metadata, and source snapshots;
+- fixed-token-budget comparison and deterministic evaluation.
 
 ## Quick start
 
@@ -38,74 +135,97 @@ curl -L https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshak
   -o data/tinyshakespeare/input.txt
 
 python train.py --config configs/shakespeare_char.py
-python sample.py --checkpoint out/shakespeare-mdlm/ckpt.pt --show-steps
+python sample.py --checkpoint out/shakespeare-mdlm/best.pt --show-steps
 ```
 
-On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1` and download the data with:
+Add `--max-iters 10` for a plumbing check; meaningful samples require a real training run.
 
-```powershell
-New-Item -ItemType Directory -Force data/tinyshakespeare
-Invoke-WebRequest https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt `
-  -OutFile data/tinyshakespeare/input.txt
-```
-
-For a short plumbing check, add `--max-iters 10`. Good samples require a real training run.
-
-## Switch to the AR baseline
-
-Copy a config and change the model fields:
-
-```python
-objective="autoregressive"
-mask_token_id=None
-time_conditioning=False
-```
-
-Then train and sample with the same commands. Keeping model size, data, and training tokens fixed
-makes the comparison meaningful.
-
-## 4× NVIDIA A40 over PCIe
-
-The included 350M target is designed for four 48 GB A40s using DDP. Start it with:
+Switch to AR without changing the shared backbone:
 
 ```bash
-torchrun --standalone --nproc_per_node=4 train.py --config configs/fineweb_350m.py
+python train.py --config configs/shakespeare_char.py \
+  --objective autoregressive --out-dir out/shakespeare-ar
 ```
 
-The current data loader is character-level and in-memory, so `fineweb_350m.py` describes the model
-and distributed training target but is **not yet a production FineWeb recipe**. A sharded tokenizer
-data pipeline is the next required step.
+## Reproduce the TinyStories experiment
 
-For a PCIe/PHB machine without active NVLink:
+The paired models use 12 layers, width 576, 9 heads, a 1024-token context, and approximately 106M
+parameters.
 
-- prefer DDP over tensor parallelism or full parameter sharding at this scale;
+```bash
+pip install -e ".[data,dev]"
+python scripts/prepare_tinystories.py
+bash scripts/run_tinystories_pair.sh
+```
+
+To launch one objective manually on four GPUs:
+
+```bash
+python -m torch.distributed.run --standalone --nproc_per_node=4 train.py \
+  --config configs/tinystories_106m.py \
+  --objective autoregressive \
+  --out-dir out/tinystories-106m-ar
+```
+
+Each run writes its resolved configuration, environment metadata, JSONL metrics, atomic resumable
+checkpoints, milestone checkpoints, samples, and final summary. Use `--resume` to continue from
+`last.pt`.
+
+## Generation quality and speed benchmark
+
+The evaluation workflow compares cached AR decoding against MDLM sampling at 8, 16, 32, and 64
+steps. It selects 1000 deterministic validation prompts, generates from both training seeds, measures
+single-GPU latency and memory, computes transparent diversity metrics, and performs blinded
+same-seed pairwise judging.
+
+```bash
+pip install -e ".[data,eval,viz]"
+export DEEPSEEK_API_KEY="..."  # keep this outside the repository
+bash scripts/run_generation_benchmark.sh
+```
+
+DeepSeek V4 Flash judges all 8000 AR/MDLM pairs. DeepSeek V4 Pro audits a stratified set of 100
+pairs, and the completed [benchmark report](reports/tinystories_106m_generation.md) includes exact
+agreement, Cohen's kappa, and the quality-latency frontier. Every phase is resumable under
+`out/tinystories-106m-generation-eval`; the API key is read only from the process environment.
+
+For a small plumbing check, run `prepare` with 20 prompts and `generate --limit 2` before invoking
+the judge. See `python scripts/benchmark_generation.py --help` for individual phases.
+
+Regenerate the README figures from completed local runs:
+
+```bash
+pip install -e ".[viz]"
+python scripts/render_readme_assets.py --refresh-data
+```
+
+## Hardware notes
+
+For 100M–350M models on PCIe/PHB GPUs without NVLink:
+
+- prefer DDP over tensor parallelism, FSDP, or ZeRO-3 at this scale;
 - keep per-GPU micro-batches large enough to amortize all-reduce;
-- use gradient accumulation (`no_sync()` avoids redundant reductions);
-- benchmark NCCL on the actual server before claiming scaling numbers.
+- use `no_sync()` during gradient accumulation;
+- benchmark NCCL on the actual server before claiming scaling efficiency.
+
+`configs/fineweb_350m.py` is a model target, not yet a production FineWeb data recipe.
 
 ## Project map
 
 ```text
 model.py                    shared Transformer and AR sampler
 diffusion.py                corruption, denoising loss, parallel sampler
-train.py                    character data, optimization, checkpointing, DDP
+train.py                    token-budget training, evaluation, checkpointing, DDP
+data.py                     character and memory-mapped token-shard loaders
+evaluation.py               prompts, local metrics, judge validation, statistics
+experiment.py               atomic artifacts and local experiment metadata
+compare_runs.py             paired Markdown reports
 sample.py                   checkpoint loading and text generation
-config.py                   typed model/training configuration
-configs/shakespeare_char.py runnable ~10M character model
-configs/tinystories_50m.py  next-stage target configuration
-configs/fineweb_350m.py     4×A40 target configuration
+configs/                    runnable experiment configurations
+scripts/                    data, training, and figure workflows
 tests/                      behavioral tests
 docs/architecture.md        design choices and roadmap
 ```
-
-## Scope and limitations
-
-This first release optimizes for clarity and a correct experimental skeleton. It does not yet
-include a subword tokenizer, memory-mapped/sharded datasets, exact MDLM likelihood weighting,
-remasking, block diffusion, KV caching, benchmark harnesses, or pretrained checkpoints. The
-TinyStories and FineWeb configs are capacity targets awaiting the tokenized data pipeline.
-
-See [docs/architecture.md](docs/architecture.md) for the objective split and planned milestones.
 
 ## License
 

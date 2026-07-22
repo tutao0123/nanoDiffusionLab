@@ -13,9 +13,12 @@ dependencies = ["torch>=2.3"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
+data = ["datasets>=3.0", "numpy>=1.26", "tiktoken>=0.8"]
+eval = ["openai>=1.0"]
+viz = ["matplotlib>=3.8", "pillow>=10"]
 
 [tool.setuptools]
-py-modules = ["config", "diffusion", "model", "sample", "train"]
+py-modules = ["compare_runs", "config", "data", "diffusion", "evaluation", "experiment", "model", "sample", "train"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

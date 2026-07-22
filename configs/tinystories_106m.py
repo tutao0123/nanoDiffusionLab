@@ -1,0 +1,36 @@
+from config import ModelConfig, TrainConfig
+
+config = TrainConfig(
+    model=ModelConfig(
+        vocab_size=50_257,
+        block_size=1_024,
+        n_layer=12,
+        n_head=9,
+        n_embd=576,
+        dropout=0.0,
+        objective="masked_diffusion",
+        mask_token_id=50_257,
+        time_conditioning=True,
+    ),
+    data_format="tokenized",
+    data_path="data/tinystories-gpt2/manifest.json",
+    out_dir="out/tinystories-106m-mdlm",
+    run_name="tinystories-106m",
+    batch_size=32,
+    gradient_accumulation_steps=2,
+    max_iters=10_000,
+    max_tokens=2_000_000_000,
+    milestone_tokens=(500_000_000, 1_000_000_000, 2_000_000_000),
+    eval_interval=250,
+    eval_iters=20,
+    log_interval=10,
+    learning_rate=3e-4,
+    min_lr=3e-5,
+    warmup_iters=200,
+    weight_decay=0.1,
+    dtype="bfloat16",
+    # Boolean output masks have dynamic cardinality; keep compile off for a stable paired run.
+    compile=False,
+    gradient_checkpointing=True,
+    backend="nccl",
+)
