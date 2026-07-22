@@ -180,11 +180,6 @@ tests/                      behavioral tests
 docs/architecture.md        design choices and roadmap
 ```
 
-## Scope
-
-The codebase optimizes for clarity and a correct experimental skeleton. Exact MDLM likelihood
-weighting, remasking, block diffusion, KV caching, and pretrained checkpoints are not yet included.
-
 ## License
 
 MIT
