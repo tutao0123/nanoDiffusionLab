@@ -2,8 +2,9 @@
 
 **一个用于公平比较自回归语言模型与扩散语言模型的精简实验平台。**
 
-[English](README.md) · [架构说明](docs/architecture.md) ·
-[实验报告](reports/tinystories_106m.md)
+[英文版](README.md) · [架构说明](docs/architecture.md) ·
+[训练报告](reports/tinystories_106m.md) ·
+[生成评测](reports/tinystories_106m_generation.md)
 
 ![自回归模型从左向右逐个生成词元，掩码扩散模型并行恢复多个位置](docs/assets/decoding_comparison.gif)
 
@@ -56,10 +57,18 @@ nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立
 两组曲线几乎重合，最终指标也十分接近，说明两种目标在测试的两个随机种子上均具有良好复现性。
 从固定随机种子样例看，当前自回归模型的故事连贯性更好；提高掩码扩散采样质量仍是后续重点。
 
+现已完成包含一万个样本的正式生成评测。批量为 1 时，掩码扩散采用 64 步比带键值缓存的
+自回归生成快 1.76 倍，采用 8 步时快 13.63 倍；但自回归模型赢得了绝大多数隐藏身份的质量
+评审。掩码扩散的综合胜负效用从 8 步的 0.0028 提升到 64 步的 0.0745。两种评审模型在抽查
+样本上的完全一致率为 98%。
+
+![一亿参数模型的质量与延迟前沿](docs/assets/quality_latency_frontier.png)
+
 详细结果：
 
 - [种子 1337 对比报告](reports/tinystories_106m.md)
 - [种子 2027 对比报告](reports/tinystories_106m_seed2027.md)
+- [生成质量与速度评测](reports/tinystories_106m_generation.md)
 - [实现与早期运行快照](reports/initial_run_report.html)
 
 ## 实验平台
@@ -164,7 +173,8 @@ bash scripts/run_generation_benchmark.sh
 ```
 
 DeepSeek V4 Flash 评审全部 8000 个自回归与掩码扩散配对；DeepSeek V4 Pro 分层复核其中 100
-个配对，报告同时给出完全一致率和 Cohen's kappa。每个阶段都可以从
+个配对。[完整评测报告](reports/tinystories_106m_generation.md)同时给出完全一致率、科恩系数与
+质量延迟前沿。每个阶段都可以从
 `out/tinystories-106m-generation-eval` 恢复，密钥不会写入仓库或实验产物。
 
 快速检查时可先使用 20 个提示执行 `prepare`，再执行带 `--limit 2` 的 `generate`。运行

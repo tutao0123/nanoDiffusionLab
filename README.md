@@ -4,7 +4,8 @@
 models.**
 
 [Chinese](README.zh-CN.md) · [Architecture](docs/architecture.md) ·
-[Experiment report](reports/tinystories_106m.md)
+[Training report](reports/tinystories_106m.md) ·
+[Generation benchmark](reports/tinystories_106m_generation.md)
 
 ![Autoregressive decoding reveals tokens from left to right; masked diffusion reveals multiple
 positions in parallel.](docs/assets/decoding_comparison.gif)
@@ -62,10 +63,18 @@ The near-overlapping curves and close final metrics show that both objectives ar
 across the two tested seeds. The included fixed-seed samples are currently more coherent for AR;
 improving MDLM sampling quality remains an active research target.
 
+The completed 10,000-sample generation benchmark quantifies that gap. At batch 1, MDLM sampling is
+1.76× faster than cached AR at 64 denoising steps and 13.63× faster at 8 steps. AR nevertheless wins
+the large majority of blinded quality comparisons: aggregate MDLM pairwise utility rises from
+0.0028 at 8 steps to 0.0745 at 64 steps. Flash and Pro judges agree on 98% of the audited pairs.
+
+![TinyStories 106M quality-latency frontier](docs/assets/quality_latency_frontier.png)
+
 Detailed outputs:
 
 - [seed 1337 comparison](reports/tinystories_106m.md)
 - [seed 2027 comparison](reports/tinystories_106m_seed2027.md)
+- [generation quality and speed benchmark](reports/tinystories_106m_generation.md)
 - [implementation and early-run snapshot](reports/initial_run_report.html)
 
 ## Experiment platform
@@ -176,7 +185,8 @@ bash scripts/run_generation_benchmark.sh
 ```
 
 DeepSeek V4 Flash judges all 8000 AR/MDLM pairs. DeepSeek V4 Pro audits a stratified set of 100
-pairs, and the report includes exact agreement and Cohen's kappa. Every phase is resumable under
+pairs, and the completed [benchmark report](reports/tinystories_106m_generation.md) includes exact
+agreement, Cohen's kappa, and the quality-latency frontier. Every phase is resumable under
 `out/tinystories-106m-generation-eval`; the API key is read only from the process environment.
 
 For a small plumbing check, run `prepare` with 20 prompts and `generate --limit 2` before invoking

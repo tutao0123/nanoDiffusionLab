@@ -68,6 +68,7 @@ reductions over communication-heavy parameter or tensor sharding.
 
 1. Character-level masked diffusion and AR baseline (implemented).
 2. Tokenized/sharded TinyStories loader and a reproducible 106M paired experiment (implemented).
-3. Cached AR inference and a quality-latency AR/MDLM evaluation (implemented; full run pending).
+3. Cached AR inference and a quality-latency AR/MDLM evaluation (implemented and completed at
+   106M scale).
 4. Block-diffusion attention, objective, and sampler.
 5. FineWeb-Edu ingestion, likelihood-aware evaluation, and instruction tuning.
