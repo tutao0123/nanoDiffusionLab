@@ -42,6 +42,21 @@ samples a candidate token for every masked position, ranks those candidates by c
 reveals enough positions to finish in the requested number of steps. Prompt tokens are never
 changed. Remasking and exact ancestral MDLM sampling are intentionally deferred.
 
+Autoregressive inference uses an optional per-layer K/V cache. Prefill runs causal attention over
+the prompt once; each later forward pass receives one new token and appends its keys and values.
+The cache contains no learned parameters, so existing checkpoints remain compatible. Cached
+generation is limited to the configured context length rather than silently changing positional
+semantics.
+
+## Generation evaluation
+
+The generation benchmark selects validation prompts at document boundaries and compares cached AR
+with multiple MDLM step counts. Quality generation can be sharded across GPUs with per-example
+random generators; latency measurements run on one GPU with explicit synchronization. DeepSeek
+pairwise judgments are blinded and position-balanced, while distinct-n and repetition metrics act
+as model-independent guardrails. Raw samples and API responses remain local; reports record model
+IDs, usage, confidence intervals, and cross-judge agreement.
+
 ## Distributed training
 
 `train.py` discovers `RANK`, `LOCAL_RANK`, and `WORLD_SIZE` from `torchrun`, wraps the model in
@@ -53,6 +68,6 @@ reductions over communication-heavy parameter or tensor sharding.
 
 1. Character-level masked diffusion and AR baseline (implemented).
 2. Tokenized/sharded TinyStories loader and a reproducible 106M paired experiment (implemented).
-3. FineWeb-Edu ingestion and likelihood-aware AR/MDLM evaluation.
+3. Cached AR inference and a quality-latency AR/MDLM evaluation (implemented; full run pending).
 4. Block-diffusion attention, objective, and sampler.
-5. Interactive denoising visualization and instruction tuning.
+5. FineWeb-Edu ingestion, likelihood-aware evaluation, and instruction tuning.

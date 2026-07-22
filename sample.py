@@ -68,15 +68,19 @@ def main() -> None:
 
     samples = []
     for sample_index in range(args.num_samples):
-        torch.manual_seed(args.seed + sample_index)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(args.seed + sample_index)
+        generator = torch.Generator(device=device).manual_seed(args.seed + sample_index)
         if model_config.objective == "autoregressive":
             encoded = encode(args.prompt) or [start_token]
             tokens = torch.tensor([encoded], dtype=torch.long, device=device)
             total_length = min(args.length, model_config.block_size)
             new_tokens = max(0, total_length - len(encoded))
-            result = model.generate(tokens, new_tokens, args.temperature, args.top_k)[0]
+            result = model.generate(
+                tokens,
+                new_tokens,
+                args.temperature,
+                args.top_k,
+                generator=generator,
+            )[0]
         else:
             if model_config.mask_token_id is None:
                 raise ValueError("checkpoint has no mask token")
@@ -103,6 +107,7 @@ def main() -> None:
                 args.top_k,
                 initial,
                 show,
+                generator,
             )[0]
         samples.append(decode(result.tolist()))
     output = "\n\n--- sample ---\n\n".join(samples)

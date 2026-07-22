@@ -162,6 +162,26 @@ Each run writes its resolved configuration, environment metadata, JSONL metrics,
 checkpoints, milestone checkpoints, samples, and final summary. Use `--resume` to continue from
 `last.pt`.
 
+## Generation quality and speed benchmark
+
+The evaluation workflow compares cached AR decoding against MDLM sampling at 8, 16, 32, and 64
+steps. It selects 1000 deterministic validation prompts, generates from both training seeds, measures
+single-GPU latency and memory, computes transparent diversity metrics, and performs blinded
+same-seed pairwise judging.
+
+```bash
+pip install -e ".[data,eval,viz]"
+export DEEPSEEK_API_KEY="..."  # keep this outside the repository
+bash scripts/run_generation_benchmark.sh
+```
+
+DeepSeek V4 Flash judges all 8000 AR/MDLM pairs. DeepSeek V4 Pro audits a stratified set of 100
+pairs, and the report includes exact agreement and Cohen's kappa. Every phase is resumable under
+`out/tinystories-106m-generation-eval`; the API key is read only from the process environment.
+
+For a small plumbing check, run `prepare` with 20 prompts and `generate --limit 2` before invoking
+the judge. See `python scripts/benchmark_generation.py --help` for individual phases.
+
 Regenerate the README figures from completed local runs:
 
 ```bash
@@ -187,6 +207,7 @@ model.py                    shared Transformer and AR sampler
 diffusion.py                corruption, denoising loss, parallel sampler
 train.py                    token-budget training, evaluation, checkpointing, DDP
 data.py                     character and memory-mapped token-shard loaders
+evaluation.py               prompts, local metrics, judge validation, statistics
 experiment.py               atomic artifacts and local experiment metadata
 compare_runs.py             paired Markdown reports
 sample.py                   checkpoint loading and text generation

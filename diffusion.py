@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 import torch
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ def corrupt_tokens(
     mask_token_id: int,
     t: torch.Tensor | None = None,
     *,
-    generator: torch.Generator | None = None,
+    generator: torch.Generator | Sequence[torch.Generator] | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Replace tokens with MASK at a independently sampled rate per sequence."""
     batch, length = tokens.shape
@@ -67,6 +67,7 @@ def sample_masked(
     top_k: int | None = None,
     initial_tokens: torch.Tensor | None = None,
     callback: Callable[[int, torch.Tensor], None] | None = None,
+    generator: torch.Generator | None = None,
 ) -> torch.Tensor:
     """Generate by repeatedly revealing the most confident masked positions."""
     if steps < 1:
@@ -90,9 +91,19 @@ def sample_masked(
             values = torch.topk(logits, min(top_k, logits.size(-1)), dim=-1).values
             logits = logits.masked_fill(logits < values[..., [-1]], float("-inf"))
         probabilities = F.softmax(logits, dim=-1)
-        predictions = torch.multinomial(probabilities.view(-1, probabilities.size(-1)), 1).view_as(
-            x
-        )
+        if isinstance(generator, Sequence):
+            if len(generator) != x.size(0):
+                raise ValueError("generator count must match batch size")
+            predictions = torch.stack(
+                [
+                    torch.multinomial(probabilities[row], 1, generator=generator[row]).squeeze(-1)
+                    for row in range(x.size(0))
+                ]
+            )
+        else:
+            predictions = torch.multinomial(
+                probabilities.view(-1, probabilities.size(-1)), 1, generator=generator
+            ).view_as(x)
         confidence = probabilities.gather(-1, predictions[..., None]).squeeze(-1)
         remaining_steps = steps - step
 

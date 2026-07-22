@@ -151,6 +151,25 @@ python -m torch.distributed.run --standalone --nproc_per_node=4 train.py \
 每次运行都会保存解析后的配置、环境信息、逐行指标、可恢复检查点、词元里程碑、生成样例与最终
 摘要。使用 `--resume` 可以从 `last.pt` 继续训练。
 
+## 生成质量与速度评估
+
+评估流程比较带键值缓存的自回归解码和使用 8、16、32、64 步的掩码扩散采样。流程会从验证集
+确定性选择 1000 个提示，使用两个训练随机种子生成样本，测量单卡延迟、吞吐与显存，计算透明的
+多样性指标，并执行隐藏模型身份的同随机种子配对评审。
+
+```bash
+pip install -e ".[data,eval,viz]"
+export DEEPSEEK_API_KEY="..."  # 密钥只放在进程环境中
+bash scripts/run_generation_benchmark.sh
+```
+
+DeepSeek V4 Flash 评审全部 8000 个自回归与掩码扩散配对；DeepSeek V4 Pro 分层复核其中 100
+个配对，报告同时给出完全一致率和 Cohen's kappa。每个阶段都可以从
+`out/tinystories-106m-generation-eval` 恢复，密钥不会写入仓库或实验产物。
+
+快速检查时可先使用 20 个提示执行 `prepare`，再执行带 `--limit 2` 的 `generate`。运行
+`python scripts/benchmark_generation.py --help` 可以查看各个独立阶段。
+
 从本地完整运行重新生成说明文档中的图片：
 
 ```bash
@@ -176,6 +195,7 @@ model.py                    共享 Transformer 与自回归采样器
 diffusion.py                掩码破坏、去噪损失与并行采样器
 train.py                    词元预算训练、评估、检查点与分布式训练
 data.py                     字符与内存映射词元分片加载器
+evaluation.py               提示抽样、本地指标、评审校验与统计
 experiment.py               原子实验产物与本地环境元数据
 compare_runs.py             成对实验报告
 sample.py                   检查点加载与文本生成
