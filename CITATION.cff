@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use nanoDiffusionLab in your work, please cite this software."
+title: "nanoDiffusionLab"
+type: software
+authors:
+  - name: "tutao0123"
+version: 0.1.0
+date-released: 2026-07-23
+repository-code: "https://github.com/tutao0123/nanoDiffusionLab"
+url: "https://github.com/tutao0123/nanoDiffusionLab"
+license: MIT

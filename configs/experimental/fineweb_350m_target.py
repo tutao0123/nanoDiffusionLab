@@ -1,6 +1,7 @@
 from config import ModelConfig, TrainConfig
 
-# Target configuration for 4x A40. A sharded-token data loader is a planned milestone.
+# Architecture and hardware target only. The repository does not yet include the
+# FineWeb-Edu tokenization and shard-manifest recipe referenced by data_path.
 config = TrainConfig(
     model=ModelConfig(
         vocab_size=32_000,
@@ -13,8 +14,8 @@ config = TrainConfig(
         mask_token_id=32_000,
     ),
     data_format="tokenized",
-    data_path="data/fineweb/input.txt",
-    out_dir="out/fineweb-350m",
+    data_path="data/fineweb-edu/manifest.json",
+    out_dir="out/fineweb-350m-target",
     batch_size=4,
     gradient_accumulation_steps=8,
     max_iters=200_000,
@@ -23,7 +24,7 @@ config = TrainConfig(
     learning_rate=3e-4,
     warmup_iters=2_000,
     dtype="bfloat16",
-    compile=True,
+    compile=False,
     gradient_checkpointing=True,
     backend="nccl",
 )

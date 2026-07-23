@@ -11,6 +11,11 @@ requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dependencies = ["torch>=2.3"]
 
+[project.urls]
+Repository = "https://github.com/tutao0123/nanoDiffusionLab"
+Documentation = "https://github.com/tutao0123/nanoDiffusionLab#readme"
+Issues = "https://github.com/tutao0123/nanoDiffusionLab/issues"
+
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
 data = ["datasets>=3.0", "numpy>=1.26", "tiktoken>=0.8"]
@@ -23,6 +28,7 @@ py-modules = ["config", "data", "diffusion", "evaluation", "experiment", "model"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

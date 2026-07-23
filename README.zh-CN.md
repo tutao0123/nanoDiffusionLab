@@ -1,11 +1,15 @@
 # nanoDiffusionLab
 
+[![持续集成](https://github.com/tutao0123/nanoDiffusionLab/actions/workflows/ci.yml/badge.svg)](https://github.com/tutao0123/nanoDiffusionLab/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![许可证：MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **一个从零训练扩散语言模型的精简实现，同时包含完整的 GPT 风格自回归语言模型训练实现。**
 
 [英文版](README.md) · [架构说明](docs/architecture.md) ·
 [训练报告](reports/tinystories_106m.md) ·
 [生成评测](reports/tinystories_106m_generation.md) ·
-[逐步教程](tutorials/zh-CN/README.md)
+[逐步教程](tutorials/zh-CN/README.md) · [贡献指南](CONTRIBUTING.md)
 
 ![自回归模型从左向右逐个生成词元，掩码扩散模型并行恢复多个位置](docs/assets/decoding_comparison.gif)
 
@@ -147,6 +151,13 @@ python sample.py --checkpoint out/shakespeare-mdlm/best.pt --show-steps
 
 添加 `--max-iters 10` 可以快速检查训练流程；生成合理样例需要完整训练。
 
+如果只想离线检查完整流程，可以使用仓库自带的小型字符数据，在中央处理器上分别训练并采样
+两种目标：
+
+```bash
+bash scripts/run_cpu_smoke.sh
+```
+
 在不改变共享主干的情况下切换为自回归目标：
 
 ```bash
@@ -212,7 +223,10 @@ python scripts/render_readme_assets.py --refresh-data
 - 梯度累积期间使用 `no_sync()` 避免冗余通信；
 - 在公布扩展效率前，应当在目标服务器上实际测试 NCCL。
 
-`configs/fineweb_350m.py` 目前只是模型目标配置，尚未包含生产级 FineWeb 数据流程。
+`configs/` 直属目录中的配置，在完成各自说明的数据准备后都应当可以运行。只有架构目标、尚未
+补齐数据约定的配置放在 `configs/experimental/`，它们不在持续集成覆盖范围内，并且必须说明
+缺失内容。其中 `configs/experimental/fineweb_350m_target.py` 尚未包含生产级 FineWeb
+数据流程，不能视为可复现实验命令。
 
 ## 项目结构
 
@@ -225,10 +239,16 @@ evaluation.py               提示抽样、本地指标、评审校验与统计
 experiment.py               原子实验产物与本地环境元数据
 sample.py                   检查点加载与文本生成
 configs/                    可运行的实验配置
+configs/experimental/       有文档说明但尚不可运行的架构目标
 scripts/                    数据、训练、评测、报告与绘图流程
 tests/                      行为测试
 docs/architecture.md        设计选择与路线图
 ```
+
+## 贡献与引用
+
+开发检查和实验报告清单见 [CONTRIBUTING.md](CONTRIBUTING.md)。引用本软件时可使用
+[CITATION.cff](CITATION.cff)，版本变化记录在 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 许可证
 
