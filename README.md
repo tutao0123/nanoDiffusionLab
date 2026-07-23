@@ -1,11 +1,12 @@
 # nanoDiffusionLab
 
-**A compact laboratory for fair comparisons between autoregressive and diffusion language
-models.**
+**A compact, from-scratch implementation for training diffusion language models, with a complete
+GPT-style autoregressive language-model implementation in the same codebase.**
 
 [Chinese](README.zh-CN.md) · [Architecture](docs/architecture.md) ·
 [Training report](reports/tinystories_106m.md) ·
-[Generation benchmark](reports/tinystories_106m_generation.md)
+[Generation benchmark](reports/tinystories_106m_generation.md) ·
+[Step-by-step tutorial](tutorials/zh-CN/README.md)
 
 ![Autoregressive decoding reveals tokens from left to right; masked diffusion reveals multiple
 positions in parallel.](docs/assets/decoding_comparison.gif)
@@ -13,8 +14,18 @@ positions in parallel.](docs/assets/decoding_comparison.gif)
 ## Why this project?
 
 nanoDiffusionLab borrows nanoGPT's small-and-readable philosophy while keeping its implementation
-independent. A single Transformer implementation supports two runnable objectives, making it
-possible to hold the backbone, data, context length, and input-token budget fixed.
+independent. Its primary goal is to make masked-diffusion language-model training understandable
+and runnable end to end—not merely to provide a sampling demo. The repository implements data
+loading, random-mask corruption, noise-level conditioning, masked-position training, evaluation,
+checkpointing, DDP, and iterative parallel generation.
+
+The repository also contains a complete GPT-style autoregressive training and generation path:
+causal attention, next-token cross-entropy, perplexity evaluation, sampling, and K/V-cached
+decoding. This path is useful as a small GPT implementation on its own and as a controlled baseline
+for diffusion experiments.
+
+Both objectives use the same Transformer implementation, so the backbone, data, context length,
+and input-token budget can be held fixed for direct experiments.
 
 | Objective | Attention | Training signal | Decoding |
 |---|---|---|---|
@@ -111,7 +122,9 @@ metrics. Pull requests with reproducible configurations and reports are encourag
 
 ## What works
 
-- one Transformer for AR and masked diffusion;
+- end-to-end masked-diffusion language-model training and parallel sampling;
+- end-to-end GPT-style autoregressive training and K/V-cached generation;
+- one shared Transformer implementation for both objectives;
 - character smoke tests and memory-mapped token shards;
 - causal and bidirectional SDPA attention;
 - masked-only output projection for lower MDLM memory;
@@ -124,6 +137,11 @@ metrics. Pull requests with reproducible configurations and reports are encourag
 ## Quick start
 
 Requires Python 3.10+ and PyTorch 2.3+.
+
+New to language-model training? Follow the detailed
+[Chinese step-by-step tutorial](tutorials/zh-CN/README.md), which covers tensor shapes, AR and MDLM
+objectives, character smoke tests, TinyStories preparation, 4-GPU DDP, exact resume, evaluation,
+and troubleshooting with copy-paste commands and expected results.
 
 ```bash
 python -m venv .venv
@@ -219,10 +237,9 @@ train.py                    token-budget training, evaluation, checkpointing, DD
 data.py                     character and memory-mapped token-shard loaders
 evaluation.py               prompts, local metrics, judge validation, statistics
 experiment.py               atomic artifacts and local experiment metadata
-compare_runs.py             paired Markdown reports
 sample.py                   checkpoint loading and text generation
 configs/                    runnable experiment configurations
-scripts/                    data, training, and figure workflows
+scripts/                    data, training, evaluation, report, and figure workflows
 tests/                      behavioral tests
 docs/architecture.md        design choices and roadmap
 ```

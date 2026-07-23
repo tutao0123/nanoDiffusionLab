@@ -1,18 +1,27 @@
 # nanoDiffusionLab
 
-**一个用于公平比较自回归语言模型与扩散语言模型的精简实验平台。**
+**一个从零训练扩散语言模型的精简实现，同时包含完整的 GPT 风格自回归语言模型训练实现。**
 
 [英文版](README.md) · [架构说明](docs/architecture.md) ·
 [训练报告](reports/tinystories_106m.md) ·
-[生成评测](reports/tinystories_106m_generation.md)
+[生成评测](reports/tinystories_106m_generation.md) ·
+[逐步教程](tutorials/zh-CN/README.md)
 
 ![自回归模型从左向右逐个生成词元，掩码扩散模型并行恢复多个位置](docs/assets/decoding_comparison.gif)
 
 ## 为什么做这个项目？
 
-nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立实现。同一套 Transformer
-目前支持两种可运行的训练目标，因此可以固定主干网络、数据、上下文长度与输入词元预算，进行
-尽可能公平的比较。
+nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立实现。这个项目最初也是最
+主要的目标，是把掩码扩散语言模型的训练过程完整实现出来，而不只是提供一个采样演示。仓库
+包含数据读取、随机掩码破坏、噪声等级条件、掩码位置训练、验证、检查点、分布式数据并行，
+以及迭代并行生成。
+
+仓库同时实现了一条完整的 GPT 风格自回归训练与生成路径，包括因果注意力、下一个词元交叉熵、
+困惑度验证、采样和键值缓存解码。它既可以单独作为一个小型 GPT 训练实现使用，也可以作为
+扩散语言模型实验的受控基线。
+
+两种目标共用同一套 Transformer，因此可以固定主干网络、数据、上下文长度与输入词元预算，
+进行尽可能直接和公平的比较。
 
 | 目标 | 注意力 | 训练信号 | 解码方式 |
 |---|---|---|---|
@@ -102,7 +111,9 @@ nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立
 
 ## 当前能力
 
-- 同一套 Transformer 支持自回归与掩码扩散；
+- 完整的掩码扩散语言模型训练与并行采样；
+- 完整的 GPT 风格自回归训练与键值缓存生成；
+- 同一套 Transformer 实现支持两种目标；
 - 字符级快速测试和内存映射词元分片；
 - 因果与双向缩放点积注意力；
 - 仅投影掩码位置，降低掩码扩散显存占用；
@@ -115,6 +126,11 @@ nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立
 ## 快速开始
 
 需要 Python 3.10 或更高版本，以及 PyTorch 2.3 或更高版本。
+
+如果你是第一次训练语言模型，建议从
+[中文逐步教程](tutorials/zh-CN/README.md)开始。教程从张量形状、AR 与 MDLM 目标讲起，依次
+覆盖字符级流程检查、TinyStories 数据、一亿参数模型、四卡 DDP、精确恢复、正式评测与常见
+错误；所有命令都可以直接复制，并注明预期现象。
 
 ```bash
 python -m venv .venv
@@ -207,10 +223,9 @@ train.py                    词元预算训练、评估、检查点与分布式�
 data.py                     字符与内存映射词元分片加载器
 evaluation.py               提示抽样、本地指标、评审校验与统计
 experiment.py               原子实验产物与本地环境元数据
-compare_runs.py             成对实验报告
 sample.py                   检查点加载与文本生成
 configs/                    可运行的实验配置
-scripts/                    数据、训练与绘图流程
+scripts/                    数据、训练、评测、报告与绘图流程
 tests/                      行为测试
 docs/architecture.md        设计选择与路线图
 ```

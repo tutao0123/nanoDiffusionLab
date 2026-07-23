@@ -1,7 +1,13 @@
 # Architecture
 
-nanoDiffusionLab keeps one Transformer implementation and changes only the parts that define
-the language-modeling objective.
+nanoDiffusionLab is first an end-to-end training implementation of a masked-diffusion language
+model: corruption, noise conditioning, denoising loss, validation, distributed training,
+checkpointing, and iterative sampling are all included. It also implements a complete GPT-style
+autoregressive training and inference path rather than relying on an external baseline.
+
+The two paths share one Transformer implementation and change only the parts that define the
+language-modeling objective. This keeps each implementation useful on its own while enabling a
+controlled comparison.
 
 | Concern | Autoregressive | Masked diffusion | Block diffusion |
 |---|---|---|---|

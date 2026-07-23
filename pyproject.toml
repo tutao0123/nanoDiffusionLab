@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nanodiffusionlab"
 version = "0.1.0"
-description = "A minimal PyTorch lab for autoregressive and diffusion language models."
+description = "A compact diffusion language-model trainer and GPT-style autoregressive trainer."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
@@ -18,7 +18,7 @@ eval = ["openai>=1.0"]
 viz = ["matplotlib>=3.8", "pillow>=10"]
 
 [tool.setuptools]
-py-modules = ["compare_runs", "config", "data", "diffusion", "evaluation", "experiment", "model", "sample", "train"]
+py-modules = ["config", "data", "diffusion", "evaluation", "experiment", "model", "sample", "train"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

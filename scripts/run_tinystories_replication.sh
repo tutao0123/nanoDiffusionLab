@@ -44,5 +44,5 @@ run_objective() {
 
 run_objective autoregressive "$ar_dir"
 run_objective masked_diffusion "$mdlm_dir"
-"$python_bin" compare_runs.py "$ar_dir" "$mdlm_dir" \
+"$python_bin" scripts/compare_runs.py "$ar_dir" "$mdlm_dir" \
     --output "reports/tinystories_106m_seed${seed}.md"
