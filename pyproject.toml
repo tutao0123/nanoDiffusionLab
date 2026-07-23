@@ -9,7 +9,7 @@ description = "A compact diffusion language-model trainer and GPT-style autoregr
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-dependencies = ["torch>=2.3"]
+dependencies = ["numpy>=1.26", "torch>=2.3"]
 
 [project.urls]
 Repository = "https://github.com/tutao0123/nanoDiffusionLab"
@@ -18,7 +18,7 @@ Issues = "https://github.com/tutao0123/nanoDiffusionLab/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
-data = ["datasets>=3.0", "numpy>=1.26", "tiktoken>=0.8"]
+data = ["datasets>=3.0", "tiktoken>=0.8"]
 eval = ["openai>=1.0"]
 viz = ["matplotlib>=3.8", "pillow>=10"]
 
