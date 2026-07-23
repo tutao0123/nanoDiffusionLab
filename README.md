@@ -1,12 +1,16 @@
 # nanoDiffusionLab
 
+[![CI](https://github.com/tutao0123/nanoDiffusionLab/actions/workflows/ci.yml/badge.svg)](https://github.com/tutao0123/nanoDiffusionLab/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **A compact, from-scratch implementation for training diffusion language models, with a complete
 GPT-style autoregressive language-model implementation in the same codebase.**
 
 [Chinese](README.zh-CN.md) · [Architecture](docs/architecture.md) ·
 [Training report](reports/tinystories_106m.md) ·
 [Generation benchmark](reports/tinystories_106m_generation.md) ·
-[Step-by-step tutorial](tutorials/zh-CN/README.md)
+[Step-by-step tutorial](tutorials/zh-CN/README.md) · [Contributing](CONTRIBUTING.md)
 
 ![Autoregressive decoding reveals tokens from left to right; masked diffusion reveals multiple
 positions in parallel.](docs/assets/decoding_comparison.gif)
@@ -158,6 +162,12 @@ python sample.py --checkpoint out/shakespeare-mdlm/best.pt --show-steps
 
 Add `--max-iters 10` for a plumbing check; meaningful samples require a real training run.
 
+For a completely offline CPU check, train and sample both objectives on the included tiny fixture:
+
+```bash
+bash scripts/run_cpu_smoke.sh
+```
+
 Switch to AR without changing the shared backbone:
 
 ```bash
@@ -226,7 +236,10 @@ For 100M–350M models on PCIe/PHB GPUs without NVLink:
 - use `no_sync()` during gradient accumulation;
 - benchmark NCCL on the actual server before claiming scaling efficiency.
 
-`configs/fineweb_350m.py` is a model target, not yet a production FineWeb data recipe.
+Configurations directly under `configs/` are runnable after following their documented data
+preparation. Architecture-only targets live under `configs/experimental/`; they are not covered by
+CI and must document their missing data contract. In particular,
+`configs/experimental/fineweb_350m_target.py` is not yet a production FineWeb data recipe.
 
 ## Project map
 
@@ -239,10 +252,17 @@ evaluation.py               prompts, local metrics, judge validation, statistics
 experiment.py               atomic artifacts and local experiment metadata
 sample.py                   checkpoint loading and text generation
 configs/                    runnable experiment configurations
+configs/experimental/       documented, non-runnable architecture targets
 scripts/                    data, training, evaluation, report, and figure workflows
 tests/                      behavioral tests
 docs/architecture.md        design choices and roadmap
 ```
+
+## Contributing and citation
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and the experiment-reporting
+checklist. Use [CITATION.cff](CITATION.cff) when citing the software. Release history is recorded in
+[CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
