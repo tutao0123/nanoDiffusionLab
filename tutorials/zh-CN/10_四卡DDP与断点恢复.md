@@ -196,4 +196,3 @@ SEED=2027 bash scripts/run_tinystories_replication.sh
 
 [上一章：训练一亿参数模型](09_训练一亿参数模型.md) ·
 [下一章：公平评测生成质量与速度](11_公平评测生成质量与速度.md)
-
