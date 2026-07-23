@@ -87,9 +87,10 @@ the large majority of blinded quality comparisons: aggregate MDLM pairwise utili
 
 ### Example generations from the final checkpoints
 
-The following are verbatim excerpts from the fixed 1,000-prompt evaluation set. Each prompt contains
-32 GPT-2 tokens and each model was asked for a 128-token continuation in BF16. MDLM uses 64
-denoising steps. `[...]` only marks where an excerpt was shortened.
+The following are verbatim excerpts from the
+[fixed 1,000-prompt evaluation](reports/tinystories_106m_generation.md). Each prompt contains 32
+GPT-2 tokens and each model was asked for a 128-token continuation in BF16. MDLM uses 64 denoising
+steps. `[...]` only marks where an excerpt was shortened.
 
 The two cases are intentionally complementary: the first exposes the repetition that remains common
 in the current MDLM sampler, while the second shows a case where its continuation is comparatively
