@@ -3,8 +3,8 @@ from pathlib import Path
 
 import torch
 
-from compare_runs import clean_sample
 from experiment import JsonlLogger, atomic_json, atomic_torch_save
+from scripts.compare_runs import clean_sample
 
 
 def test_clean_sample_removes_only_boundary_whitespace() -> None:
