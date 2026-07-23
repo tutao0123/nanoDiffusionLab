@@ -77,6 +77,69 @@ nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立
 
 ![一亿参数模型的质量与延迟前沿](docs/assets/quality_latency_frontier.png)
 
+### 最终检查点的输入输出示例
+
+下面是固定 1000 个提示评测集中的真实输出节选。每个输入包含 32 个 GPT-2 词元，两种模型均以
+BF16 生成 128 个后续词元；掩码扩散模型使用 64 步去噪。`[...]` 只表示此处省略了后续原文。
+
+两个例子有意展示不同情况：第一个可以看到当前掩码扩散采样器仍然常见的重复问题；第二个展示
+它也能生成相对连贯的后续文本。样例用于直观理解模型行为，整体结论仍应以上方正式评测为准。
+
+**示例一——训练种子 1337，提示编号 0**
+
+输入：
+
+```text
+Tom and Mia were adventurous kids. They liked to explore new places and have fun. One day, they found a big tube in the park. It was long
+```
+
+自回归模型输出：
+
+```text
+and round and shiny. They wondered what was inside.
+
+"Let's go in the tube," Tom said.
+
+"Okay," Mia said.
+
+They crawled into the tube and saw a dark and narrow tunnel. It was not clear. It had a lot of rocks and dirt and bugs. They heard strange noises and saw bright colors. They were curious and excited. [...]
+```
+
+掩码扩散模型输出，64 步：
+
+```text
+and hot and made. They
+"Let's go, tube!" Tom said.
+
+"OK, but be careful. The tube is very heavy," Mia said said.
+
+They ran to the tube. They put the tube on the tube. They put the tube on the tube. They put the tube on the tube. They were happy. [...]
+```
+
+**示例二——训练种子 2027，提示编号 573**
+
+输入：
+
+```text
+Once upon a time, there was a little boy named Tim. Tim had a big toy car that he loved to play with. One day, Tim's toy
+```
+
+自回归模型输出：
+
+```text
+car started to break. He was very sad and didn't know what to do.
+
+Tim's mom saw that he was worried, so she took him to the store to sell some things. At the store, Tim saw a man who needed money, but not enough. [...]
+```
+
+掩码扩散模型输出，64 步：
+
+```text
+car broke into many pieces. Tim was sad and didn't know what to do.
+
+Tim asked mom for help and tried to fix the toy car. His mom saw him and was sad and said, "Don't worry, Tim. We need to fix it. Let's fix the car together." They went to the store and found a broken car on the shelf. She said, "Don't worry, Tim. We can fix your car. It's as good as new again." [...]
+```
+
 详细结果：
 
 - [种子 1337 对比报告](reports/tinystories_106m.md)
