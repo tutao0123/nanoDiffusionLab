@@ -85,6 +85,72 @@ the large majority of blinded quality comparisons: aggregate MDLM pairwise utili
 
 ![TinyStories 106M quality-latency frontier](docs/assets/quality_latency_frontier.png)
 
+### Example generations from the final checkpoints
+
+The following are verbatim excerpts from the
+[fixed 1,000-prompt evaluation](reports/tinystories_106m_generation.md). Each prompt contains 32
+GPT-2 tokens and each model was asked for a 128-token continuation in BF16. MDLM uses 64 denoising
+steps. `[...]` only marks where an excerpt was shortened.
+
+The two cases are intentionally complementary: the first exposes the repetition that remains common
+in the current MDLM sampler, while the second shows a case where its continuation is comparatively
+coherent. They illustrate model behavior but do not replace the aggregate benchmark above.
+
+**Example 1 — seed 1337, prompt 0**
+
+Input:
+
+```text
+Tom and Mia were adventurous kids. They liked to explore new places and have fun. One day, they found a big tube in the park. It was long
+```
+
+AR output:
+
+```text
+and round and shiny. They wondered what was inside.
+
+"Let's go in the tube," Tom said.
+
+"Okay," Mia said.
+
+They crawled into the tube and saw a dark and narrow tunnel. It was not clear. It had a lot of rocks and dirt and bugs. They heard strange noises and saw bright colors. They were curious and excited. [...]
+```
+
+MDLM output, 64 steps:
+
+```text
+and hot and made. They
+"Let's go, tube!" Tom said.
+
+"OK, but be careful. The tube is very heavy," Mia said said.
+
+They ran to the tube. They put the tube on the tube. They put the tube on the tube. They put the tube on the tube. They were happy. [...]
+```
+
+**Example 2 — seed 2027, prompt 573**
+
+Input:
+
+```text
+Once upon a time, there was a little boy named Tim. Tim had a big toy car that he loved to play with. One day, Tim's toy
+```
+
+AR output:
+
+```text
+car started to break. He was very sad and didn't know what to do.
+
+Tim's mom saw that he was worried, so she took him to the store to sell some things. At the store, Tim saw a man who needed money, but not enough. [...]
+```
+
+MDLM output, 64 steps:
+
+```text
+car broke into many pieces. Tim was sad and didn't know what to do.
+
+Tim asked mom for help and tried to fix the toy car. His mom saw him and was sad and said, "Don't worry, Tim. We need to fix it. Let's fix the car together." They went to the store and found a broken car on the shelf. She said, "Don't worry, Tim. We can fix your car. It's as good as new again." [...]
+```
+
 Detailed outputs:
 
 - [seed 1337 comparison](reports/tinystories_106m.md)
