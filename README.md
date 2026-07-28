@@ -10,6 +10,7 @@ GPT-style autoregressive language-model implementation in the same codebase.**
 [Chinese](README.zh-CN.md) · [Architecture](docs/architecture.md) ·
 [Training report](reports/tinystories_106m.md) ·
 [Generation benchmark](reports/tinystories_106m_generation.md) ·
+[Revisable decoding](docs/editable_diffusion_decoding.md) ·
 [Step-by-step tutorial](tutorials/zh-CN/README.md) · [Contributing](CONTRIBUTING.md)
 
 ![Autoregressive decoding reveals tokens from left to right; masked diffusion reveals multiple
@@ -85,6 +86,21 @@ the large majority of blinded quality comparisons: aggregate MDLM pairwise utili
 
 ![TinyStories 106M quality-latency frontier](docs/assets/quality_latency_frontier.png)
 
+### Revisable diffusion decoding
+
+Inspired by the editing perspective in the
+[LLaDA2.2 technical report](https://github.com/inclusionAI/LLaDA2.X/blob/main/LLaDA2_2_tech_report.pdf),
+we tested a minimal sampler-only form of revisability: low-confidence revealed MDLM tokens can be
+masked and sampled again, with EOT protection and a final-quarter decay. On 2,000 continuations,
+the selected variant reduced repeated 4-grams from 0.0951 to 0.0672, but blinded judges still
+preferred the original MDLM (remask utility 0.357 with Flash and 0.300 in the Pro audit). It was
+also 6.1% slower than the original MDLM at batch 1.
+
+This negative result keeps the project's AR–diffusion comparison honest: proxy diversity improved,
+story preference did not. Remasking is experimental and **disabled by default**. See the
+[interpretation and architecture comparison](docs/editable_diffusion_decoding.md) and
+[formal report](reports/tinystories_106m_remask_generation.md).
+
 ### Example generations from the final checkpoints
 
 The following are verbatim excerpts from the
@@ -156,6 +172,7 @@ Detailed outputs:
 - [seed 1337 comparison](reports/tinystories_106m.md)
 - [seed 2027 comparison](reports/tinystories_106m_seed2027.md)
 - [generation quality and speed benchmark](reports/tinystories_106m_generation.md)
+- [revisable diffusion decoding experiment](docs/editable_diffusion_decoding.md)
 - [implementation and early-run snapshot](reports/initial_run_report.html)
 
 ## Experiment platform

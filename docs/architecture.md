@@ -46,7 +46,15 @@ objective. Future experiments can add schedule weighting without replacing the m
 Generation starts from an all-mask sequence, or a prompt followed by masks. Each forward pass
 samples a candidate token for every masked position, ranks those candidates by confidence, and
 reveals enough positions to finish in the requested number of steps. Prompt tokens are never
-changed. Remasking and exact ancestral MDLM sampling are intentionally deferred.
+changed.
+
+An experimental, default-off remasking path can revisit a fraction of revealed positions with the
+lowest confidence recorded at reveal time. Prompt and protected structural tokens remain fixed,
+the remask fraction can decay to zero near the end, and the final step never adds masks. A completed
+two-seed evaluation found lower repetition but worse blinded preference than the irreversible
+sampler, so `remask_fraction=0` remains the public baseline. See
+[`editable_diffusion_decoding.md`](editable_diffusion_decoding.md). Exact ancestral MDLM sampling
+is still deferred.
 
 Autoregressive inference uses an optional per-layer K/V cache. Prefill runs causal attention over
 the prompt once; each later forward pass receives one new token and appends its keys and values.
@@ -76,5 +84,7 @@ reductions over communication-heavy parameter or tensor sharding.
 2. Tokenized/sharded TinyStories loader and a reproducible 106M paired experiment (implemented).
 3. Cached AR inference and a quality-latency AR/MDLM evaluation (implemented and completed at
    106M scale).
-4. Block-diffusion attention, objective, and sampler.
-5. FineWeb-Edu ingestion, likelihood-aware evaluation, and instruction tuning.
+4. Experimental low-confidence MDLM remasking with EOT protection and late decay (implemented,
+   evaluated, and disabled by default after a negative blinded result).
+5. Block-diffusion attention, objective, and sampler.
+6. FineWeb-Edu ingestion, likelihood-aware evaluation, and instruction tuning.

@@ -9,6 +9,7 @@
 [英文版](README.md) · [架构说明](docs/architecture.md) ·
 [训练报告](reports/tinystories_106m.md) ·
 [生成评测](reports/tinystories_106m_generation.md) ·
+[可修正扩散解码](docs/editable_diffusion_decoding.zh-CN.md) ·
 [逐步教程](tutorials/zh-CN/README.md) · [贡献指南](CONTRIBUTING.md)
 
 ![自回归模型从左向右逐个生成词元，掩码扩散模型并行恢复多个位置](docs/assets/decoding_comparison.gif)
@@ -76,6 +77,21 @@ nanoDiffusionLab 借鉴 nanoGPT 代码紧凑、易读的理念，但保持独立
 样本上的完全一致率为 98%。
 
 ![一亿参数模型的质量与延迟前沿](docs/assets/quality_latency_frontier.png)
+
+### 可修正扩散解码
+
+受
+[LLaDA2.2 技术报告](https://github.com/inclusionAI/LLaDA2.X/blob/main/LLaDA2_2_tech_report.pdf)
+的编辑视角启发，我们验证了一个只改采样器的最小 revisability 方案：允许低置信度已揭示 MDLM
+token 重新变成 mask，同时保护 EOT，并在最后四分之一步数内将回退比例衰减到零。在 2,000
+条 continuation 上，最佳候选把 repeated 4-gram 从 0.0951 降到 0.0672，但盲评仍更偏好
+原始 MDLM（Flash 中 remask 效用 0.357，Pro 抽查中为 0.300）；batch 1 延迟也比原 MDLM
+高 6.1%。
+
+这个负面结果有助于保持 AR–diffusion 对比的诚实性：代理多样性指标改善，不等于故事偏好提升。
+Remask 仍是实验功能，并且**默认关闭**。详细解释与架构对比见
+[可修正扩散解码文档](docs/editable_diffusion_decoding.zh-CN.md)，完整数据见
+[正式报告](reports/tinystories_106m_remask_generation.md)。
 
 ### 最终检查点的输入输出示例
 
@@ -146,6 +162,7 @@ Tim asked mom for help and tried to fix the toy car. His mom saw him and was sad
 - [种子 1337 对比报告](reports/tinystories_106m.md)
 - [种子 2027 对比报告](reports/tinystories_106m_seed2027.md)
 - [生成质量与速度评测](reports/tinystories_106m_generation.md)
+- [可修正扩散解码实验](docs/editable_diffusion_decoding.zh-CN.md)
 - [实现与早期运行快照](reports/initial_run_report.html)
 
 ## 实验平台
