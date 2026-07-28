@@ -24,6 +24,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--show-steps", action="store_true")
     parser.add_argument("--seed", type=int, default=1337)
     parser.add_argument("--num-samples", type=int, default=1)
+    parser.add_argument(
+        "--remask-fraction",
+        type=float,
+        default=0.0,
+        help="fraction of editable predictions to revisit each step (masked diffusion only)",
+    )
+    parser.add_argument(
+        "--remask-decay-start",
+        type=float,
+        default=1.0,
+        help="progress ratio where remasking begins decaying to zero",
+    )
+    parser.add_argument(
+        "--protect-eot",
+        action="store_true",
+        help="never remask an end-of-text token once revealed",
+    )
     parser.add_argument("--output")
     return parser.parse_args()
 
@@ -47,6 +64,7 @@ def main() -> None:
         except ImportError as error:
             raise SystemExit('tokenized sampling requires: pip install -e ".[data]"') from error
         encoding = tiktoken.get_encoding(metadata["tokenizer"]["name"])
+        eot_token_id = int(metadata["tokenizer"]["eot_token_id"])
 
         def encode(text: str) -> list[int]:
             return encoding.encode_ordinary(text)
@@ -54,7 +72,7 @@ def main() -> None:
         def decode(tokens: list[int]) -> str:
             return encoding.decode(tokens)
 
-        start_token = int(metadata["tokenizer"]["eot_token_id"])
+        start_token = eot_token_id
     else:
         stoi, itos = metadata["stoi"], metadata["itos"]
 
@@ -65,6 +83,9 @@ def main() -> None:
             return "".join(itos[token] for token in tokens)
 
         start_token = 0
+        eot_token_id = None
+    if args.protect_eot and eot_token_id is None:
+        raise SystemExit("--protect-eot requires tokenized data with an EOT token")
 
     samples = []
     for sample_index in range(args.num_samples):
@@ -99,15 +120,18 @@ def main() -> None:
                     print(f"step {step:02d}: {decode(visible)}")
 
             result = sample_masked(
-                model,
-                (1, length),
-                model_config.mask_token_id,
-                args.steps,
-                args.temperature,
-                args.top_k,
-                initial,
-                show,
-                generator,
+                model=model,
+                shape=(1, length),
+                mask_token_id=model_config.mask_token_id,
+                steps=args.steps,
+                temperature=args.temperature,
+                top_k=args.top_k,
+                initial_tokens=initial,
+                callback=show,
+                generator=generator,
+                remask_fraction=args.remask_fraction,
+                remask_decay_start=args.remask_decay_start,
+                protected_token_ids=(eot_token_id,) if args.protect_eot else None,
             )[0]
         samples.append(decode(result.tolist()))
     output = "\n\n--- sample ---\n\n".join(samples)
