@@ -1,0 +1,352 @@
+{
+  "settings": {
+    "format": "nanodiffusion-remask-validation/2",
+    "dataset": {
+      "name": "roneneldan/TinyStories",
+      "revision": "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64"
+    },
+    "tokenizer": {
+      "name": "gpt2",
+      "vocab_size": 50257,
+      "eot_token_id": 50256
+    },
+    "num_prompts": 100,
+    "prompt_length": 32,
+    "output_length": 128,
+    "steps": 64,
+    "variants": [
+      {
+        "name": "baseline",
+        "label": "Irreversible baseline",
+        "remask_fraction": 0.0,
+        "remask_decay_start": 1.0,
+        "protect_eot": false
+      },
+      {
+        "name": "fixed-05",
+        "label": "Fixed 5% remask",
+        "remask_fraction": 0.05,
+        "remask_decay_start": 1.0,
+        "protect_eot": false
+      },
+      {
+        "name": "fixed-10",
+        "label": "Fixed 10% remask",
+        "remask_fraction": 0.1,
+        "remask_decay_start": 1.0,
+        "protect_eot": false
+      },
+      {
+        "name": "protect-10",
+        "label": "Fixed 10% remask, EOT protected",
+        "remask_fraction": 0.1,
+        "remask_decay_start": 1.0,
+        "protect_eot": true
+      },
+      {
+        "name": "decay-protect-05",
+        "label": "5% remask, EOT protected, final-quarter decay",
+        "remask_fraction": 0.05,
+        "remask_decay_start": 0.75,
+        "protect_eot": true
+      },
+      {
+        "name": "decay-protect-10",
+        "label": "10% remask, EOT protected, final-quarter decay",
+        "remask_fraction": 0.1,
+        "remask_decay_start": 0.75,
+        "protect_eot": true
+      }
+    ],
+    "prompt_seed": 4242,
+    "inference_dtype": "bfloat16",
+    "training_seeds": [
+      1337,
+      2027
+    ],
+    "selection_gate": {
+      "minimum_relative_repetition_reduction": 0.2,
+      "maximum_eot_completion_drop": 0.02,
+      "maximum_distinct_3_drop": 0.01
+    }
+  },
+  "generation_records": 1200,
+  "local_metrics": {
+    "baseline": {
+      "samples": 200.0,
+      "length": 122.91,
+      "ended": 0.23,
+      "unique_token_ratio": 0.4117049226261948,
+      "distinct_1": 0.4117049226261948,
+      "distinct_2": 0.700519403953688,
+      "distinct_3": 0.8320736459353724,
+      "repeated_4gram_ratio": 0.0963116545594069
+    },
+    "decay-protect-05": {
+      "samples": 200.0,
+      "length": 122.04,
+      "ended": 0.22,
+      "unique_token_ratio": 0.41731221330351537,
+      "distinct_1": 0.41731221330351537,
+      "distinct_2": 0.7150147147633461,
+      "distinct_3": 0.8482717933590483,
+      "repeated_4gram_ratio": 0.08415491523827617
+    },
+    "decay-protect-10": {
+      "samples": 200.0,
+      "length": 122.775,
+      "ended": 0.225,
+      "unique_token_ratio": 0.4144076604578748,
+      "distinct_1": 0.4144076604578748,
+      "distinct_2": 0.7270428067899164,
+      "distinct_3": 0.8624517759726421,
+      "repeated_4gram_ratio": 0.07038885260002435
+    },
+    "fixed-05": {
+      "samples": 200.0,
+      "length": 123.565,
+      "ended": 0.17,
+      "unique_token_ratio": 0.42241049907469697,
+      "distinct_1": 0.42241049907469697,
+      "distinct_2": 0.7354485222039756,
+      "distinct_3": 0.8631155053672257,
+      "repeated_4gram_ratio": 0.07487987779348516
+    },
+    "fixed-10": {
+      "samples": 200.0,
+      "length": 123.56,
+      "ended": 0.18,
+      "unique_token_ratio": 0.4194432949459871,
+      "distinct_1": 0.4194432949459871,
+      "distinct_2": 0.7545010023934641,
+      "distinct_3": 0.8875106542077547,
+      "repeated_4gram_ratio": 0.05437300271032321
+    },
+    "protect-10": {
+      "samples": 200.0,
+      "length": 123.34,
+      "ended": 0.195,
+      "unique_token_ratio": 0.4207888011369032,
+      "distinct_1": 0.4207888011369032,
+      "distinct_2": 0.7560731456922444,
+      "distinct_3": 0.8878230053489167,
+      "repeated_4gram_ratio": 0.05447033349016524
+    }
+  },
+  "local_metrics_by_seed": {
+    "seed1337:baseline": {
+      "samples": 100,
+      "length": 121.51,
+      "ended": 0.31,
+      "unique_token_ratio": 0.4081340708640318,
+      "distinct_1": 0.4081340708640318,
+      "distinct_2": 0.6942920435713282,
+      "distinct_3": 0.830346703776442,
+      "repeated_4gram_ratio": 0.09611183304304535
+    },
+    "seed1337:decay-protect-05": {
+      "samples": 100,
+      "length": 121.2,
+      "ended": 0.29,
+      "unique_token_ratio": 0.42186112048774776,
+      "distinct_1": 0.42186112048774776,
+      "distinct_2": 0.7160313663697592,
+      "distinct_3": 0.8485677261852376,
+      "repeated_4gram_ratio": 0.08413844190064576
+    },
+    "seed1337:decay-protect-10": {
+      "samples": 100,
+      "length": 123.29,
+      "ended": 0.27,
+      "unique_token_ratio": 0.40766374364925045,
+      "distinct_1": 0.40766374364925045,
+      "distinct_2": 0.7182348705046763,
+      "distinct_3": 0.8525555848416168,
+      "repeated_4gram_ratio": 0.07861448244211643
+    },
+    "seed1337:fixed-05": {
+      "samples": 100,
+      "length": 122.54,
+      "ended": 0.24,
+      "unique_token_ratio": 0.42277395704414616,
+      "distinct_1": 0.42277395704414616,
+      "distinct_2": 0.7322338159484642,
+      "distinct_3": 0.8585491197826481,
+      "repeated_4gram_ratio": 0.08001842180620955
+    },
+    "seed1337:fixed-10": {
+      "samples": 100,
+      "length": 122.79,
+      "ended": 0.22,
+      "unique_token_ratio": 0.42192286981484073,
+      "distinct_1": 0.42192286981484073,
+      "distinct_2": 0.7550730059076047,
+      "distinct_3": 0.8860860131561635,
+      "repeated_4gram_ratio": 0.056193009315533546
+    },
+    "seed1337:protect-10": {
+      "samples": 100,
+      "length": 122.35,
+      "ended": 0.25,
+      "unique_token_ratio": 0.42374354993235114,
+      "distinct_1": 0.42374354993235114,
+      "distinct_2": 0.7559440599047912,
+      "distinct_3": 0.8859367746576817,
+      "repeated_4gram_ratio": 0.05637404685820504
+    },
+    "seed2027:baseline": {
+      "samples": 100,
+      "length": 124.31,
+      "ended": 0.15,
+      "unique_token_ratio": 0.41527577438835783,
+      "distinct_1": 0.41527577438835783,
+      "distinct_2": 0.7067467643360476,
+      "distinct_3": 0.8338005880943027,
+      "repeated_4gram_ratio": 0.09651147607576847
+    },
+    "seed2027:decay-protect-05": {
+      "samples": 100,
+      "length": 122.88,
+      "ended": 0.15,
+      "unique_token_ratio": 0.4127633061192829,
+      "distinct_1": 0.4127633061192829,
+      "distinct_2": 0.713998063156933,
+      "distinct_3": 0.8479758605328591,
+      "repeated_4gram_ratio": 0.0841713885759066
+    },
+    "seed2027:decay-protect-10": {
+      "samples": 100,
+      "length": 122.26,
+      "ended": 0.18,
+      "unique_token_ratio": 0.4211515772664991,
+      "distinct_1": 0.4211515772664991,
+      "distinct_2": 0.7358507430751564,
+      "distinct_3": 0.8723479671036675,
+      "repeated_4gram_ratio": 0.06216322275793227
+    },
+    "seed2027:fixed-05": {
+      "samples": 100,
+      "length": 124.59,
+      "ended": 0.1,
+      "unique_token_ratio": 0.42204704110524777,
+      "distinct_1": 0.42204704110524777,
+      "distinct_2": 0.7386632284594871,
+      "distinct_3": 0.8676818909518033,
+      "repeated_4gram_ratio": 0.06974133378076079
+    },
+    "seed2027:fixed-10": {
+      "samples": 100,
+      "length": 124.33,
+      "ended": 0.14,
+      "unique_token_ratio": 0.4169637200771335,
+      "distinct_1": 0.4169637200771335,
+      "distinct_2": 0.7539289988793235,
+      "distinct_3": 0.8889352952593458,
+      "repeated_4gram_ratio": 0.05255299610511287
+    },
+    "seed2027:protect-10": {
+      "samples": 100,
+      "length": 124.33,
+      "ended": 0.14,
+      "unique_token_ratio": 0.4178340523414553,
+      "distinct_1": 0.4178340523414553,
+      "distinct_2": 0.7562022314796977,
+      "distinct_3": 0.8897092360401515,
+      "repeated_4gram_ratio": 0.052566620122125436
+    }
+  },
+  "performance": {
+    "baseline": {
+      "mean_sequences_per_second_per_gpu": 6.1943840549621125,
+      "max_peak_memory_mib": 1252.87646484375
+    },
+    "decay-protect-05": {
+      "mean_sequences_per_second_per_gpu": 7.7136960256133404,
+      "max_peak_memory_mib": 1252.876953125
+    },
+    "decay-protect-10": {
+      "mean_sequences_per_second_per_gpu": 7.275575242978857,
+      "max_peak_memory_mib": 1252.876953125
+    },
+    "fixed-05": {
+      "mean_sequences_per_second_per_gpu": 6.6238023645705955,
+      "max_peak_memory_mib": 1252.876953125
+    },
+    "fixed-10": {
+      "mean_sequences_per_second_per_gpu": 7.100141785121786,
+      "max_peak_memory_mib": 1252.876953125
+    },
+    "protect-10": {
+      "mean_sequences_per_second_per_gpu": 7.140233324232673,
+      "max_peak_memory_mib": 1252.876953125
+    }
+  },
+  "selection": {
+    "selected_variant": "decay-protect-10",
+    "gate_passed": true,
+    "decisions": {
+      "decay-protect-05": {
+        "passed": false,
+        "relative_repetition_reduction": 0.1262229309292181,
+        "eot_completion_drop": 0.010000000000000009,
+        "distinct_3_drop": -0.01619814742367598
+      },
+      "decay-protect-10": {
+        "passed": true,
+        "relative_repetition_reduction": 0.2691554005376667,
+        "eot_completion_drop": 0.0050000000000000044,
+        "distinct_3_drop": -0.030378130037269746
+      },
+      "fixed-05": {
+        "passed": false,
+        "relative_repetition_reduction": 0.22252526824468793,
+        "eot_completion_drop": 0.06,
+        "distinct_3_drop": -0.031041859431853336
+      },
+      "fixed-10": {
+        "passed": false,
+        "relative_repetition_reduction": 0.43544731985904284,
+        "eot_completion_drop": 0.05000000000000002,
+        "distinct_3_drop": -0.05543700827238229
+      },
+      "protect-10": {
+        "passed": false,
+        "relative_repetition_reduction": 0.43443673832259966,
+        "eot_completion_drop": 0.035,
+        "distinct_3_drop": -0.05574935941354431
+      }
+    }
+  },
+  "paired_repetition": {
+    "decay-protect-05": {
+      "improved": 110,
+      "unchanged": 5,
+      "worsened": 85,
+      "mean_delta": -0.012156739321130733
+    },
+    "decay-protect-10": {
+      "improved": 120,
+      "unchanged": 10,
+      "worsened": 70,
+      "mean_delta": -0.025922801959382562
+    },
+    "fixed-05": {
+      "improved": 117,
+      "unchanged": 12,
+      "worsened": 71,
+      "mean_delta": -0.021431776765921746
+    },
+    "fixed-10": {
+      "improved": 154,
+      "unchanged": 7,
+      "worsened": 39,
+      "mean_delta": -0.041938651849083707
+    },
+    "protect-10": {
+      "improved": 155,
+      "unchanged": 7,
+      "worsened": 38,
+      "mean_delta": -0.041841321069241676
+    }
+  }
+}
