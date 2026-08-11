@@ -1,0 +1,2 @@
+# Generated experiment report; exclude it from GitHub language statistics.
+reports/initial_run_report.html linguist-generated=true
